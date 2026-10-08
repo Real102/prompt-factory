@@ -1,0 +1,19 @@
+:root {
+  --bg-overlay:   #0c130f;
+  --bg-panel:     #131c17;
+  --bg-panel2:    #172119;
+  --bg-preview:   #0a0f0c;
+  --stroke:       #22302a;
+  --text-main:    #ece9df;
+  --text-dim:     #5b6359;
+  --text-dim2:    #968f80;
+  --accent:       #c9f73d;
+  --cat-role:     #c9f73d;
+  --cat-perm:     #6ad7ff;
+  --cat-avoid:    #ff7a3d;
+  --cat-fmt:      #7af0c4;
+  --cat-ctx:      #ffd24d;
+  --desktop:      #1a1a1a;
+  --font-mono:    'JetBrains Mono', monospace;
+  --font-sans:    'IBM Plex Sans', sans-serif;
+}

@@ -1,0 +1,22 @@
+.overlay {
+  width: 680px;
+  height: 560px;
+  border-radius: 12px;
+  background: var(--bg-overlay);
+  border: 1px solid var(--accent);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.hidden {
+  opacity: 0;
+  transform: scale(0.95);
+  pointer-events: none;
+}
