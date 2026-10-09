@@ -1,4 +1,4 @@
-export type Category = 'role' | 'perm' | 'avoid' | 'fmt' | 'ctx';
+export type Category = string;
 
 export interface Snippet {
   id: string;
@@ -32,8 +32,8 @@ export interface AppData {
   categories: CategoryMeta[];
 }
 
-/** 分类 → CSS 变量颜色映射 */
-export const CATEGORY_COLORS: Record<Category, string> = {
+/** 分类 → CSS 变量颜色映射（种子分类默认颜色） */
+export const CATEGORY_COLORS: Record<string, string> = {
   role: 'var(--cat-role)',
   perm: 'var(--cat-perm)',
   avoid: 'var(--cat-avoid)',
@@ -45,7 +45,7 @@ export const CATEGORY_COLORS: Record<Category, string> = {
 export { CATEGORY_COLORS as CATEGORY_CSS_VARS };
 
 /** 分类 → 中文标签 */
-export const CATEGORY_LABELS: Record<Category, string> = {
+export const CATEGORY_LABELS: Record<string, string> = {
   role: '角色',
   perm: '权限',
   avoid: '避免',
@@ -54,7 +54,13 @@ export const CATEGORY_LABELS: Record<Category, string> = {
 };
 
 /** 分类展示顺序 */
-export const CATEGORY_ORDER: Category[] = ['role', 'perm', 'avoid', 'fmt', 'ctx'];
+export const CATEGORY_ORDER: string[] = ['role', 'perm', 'avoid', 'fmt', 'ctx'];
+
+/** 新分类自动分配颜色池 */
+export const CATEGORY_COLOR_POOL: string[] = [
+  '#c9f73d', '#6ad7ff', '#ff7a3d', '#7af0c4', '#ffd24d',
+  '#ff6b9d', '#a78bfa', '#fbbf24', '#34d399', '#60a5fa',
+];
 
 /** 分类元信息列表（供种子数据与 UI 使用） */
 export const CATEGORIES: CategoryMeta[] = [
