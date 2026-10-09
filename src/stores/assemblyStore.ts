@@ -103,8 +103,7 @@ export const useAssemblyStore = create<AssemblyStore>((set, get) => ({
     try {
       const ok = await invoke<boolean>('inject_text', { text });
       if (ok) {
-        useUIStore.getState().showToast('已注入到光标位置', 'success');
-        await useUIStore.getState().toggleOverlay();
+        useUIStore.getState().hideOverlay();
       } else {
         useUIStore.getState().showToast('注入失败', 'info');
       }

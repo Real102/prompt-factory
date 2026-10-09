@@ -5,6 +5,7 @@
 
 import { create } from 'zustand';
 import type { Snippet, CategoryMeta } from '@/types';
+import { CATEGORY_COLOR_POOL } from '@/types';
 import { storageService, getSeedData } from '@/services/storage';
 import { snippetService } from '@/services/snippetService';
 
@@ -24,6 +25,12 @@ interface SnippetStore {
   updateSnippet: (id: string, data: Partial<Snippet>) => Promise<void>;
   /** 删除片段并持久化 */
   deleteSnippet: (id: string) => Promise<void>;
+  /** 新增分类并持久化 */
+  addCategory: (name: string, color?: string) => Promise<void>;
+  /** 更新分类并持久化 */
+  updateCategory: (id: string, name: string, color: string) => Promise<void>;
+  /** 删除分类并持久化（同时删除该分类下所有片段） */
+  deleteCategory: (id: string) => Promise<void>;
 }
 
 export const useSnippetStore = create<SnippetStore>((set, get) => ({
@@ -85,6 +92,47 @@ export const useSnippetStore = create<SnippetStore>((set, get) => ({
     await storageService.save({
       snippets: nextSnippets,
       categories,
+    });
+  },
+
+  addCategory: async (name, color) => {
+    const { snippets, categories } = get();
+    const catColor = color || CATEGORY_COLOR_POOL[categories.length % CATEGORY_COLOR_POOL.length];
+    const newCat: CategoryMeta = {
+      id: `cat_${Date.now().toString(36)}`,
+      name,
+      color: catColor,
+    };
+    const nextCategories = [...categories, newCat];
+    set({ categories: nextCategories });
+    await storageService.save({
+      snippets,
+      categories: nextCategories,
+    });
+  },
+
+  updateCategory: async (id, name, color) => {
+    const { snippets, categories } = get();
+    const nextCategories = categories.map((c) =>
+      c.id === id ? { ...c, name, color } : c
+    );
+    set({ categories: nextCategories });
+    await storageService.save({
+      snippets,
+      categories: nextCategories,
+    });
+  },
+
+  deleteCategory: async (id) => {
+    const { snippets, categories } = get();
+    const nextCategories = categories.filter((c) => c.id !== id);
+    const nextSnippets = Object.fromEntries(
+      Object.entries(snippets).filter(([, s]) => s.category !== id)
+    );
+    set({ snippets: nextSnippets, categories: nextCategories });
+    await storageService.save({
+      snippets: nextSnippets,
+      categories: nextCategories,
     });
   },
 }));

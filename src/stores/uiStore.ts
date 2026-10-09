@@ -22,6 +22,8 @@ interface UIStore {
   showSnippetEditor: boolean;
   /** 切换浮层显隐（调用 Rust toggle_overlay + 同步前端状态） */
   toggleOverlay: () => Promise<void>;
+  /** 仅同步前端状态为隐藏（Rust 端已隐藏窗口时使用） */
+  hideOverlay: () => void;
   /** 显示 Toast，2 秒后自动清除 */
   showToast: (msg: string, type: 'success' | 'info') => void;
   /** 切换片段编辑器面板 */
@@ -43,6 +45,10 @@ export const useUIStore = create<UIStore>((set) => ({
       // IPC 不可用（浏览器开发环境），仅切换前端状态
     }
     set((s) => ({ overlayVisible: !s.overlayVisible }));
+  },
+
+  hideOverlay: () => {
+    set({ overlayVisible: false });
   },
 
   showToast: (msg, type) => {
