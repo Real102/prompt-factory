@@ -1,11 +1,14 @@
 use tauri::Manager;
-use tauri_plugin_global_shortcut::GlobalShortcutExt;
+use tauri_plugin_global_shortcut::{GlobalShortcutExt, ShortcutState};
 
 /// 注册全局快捷键唤起浮层
 /// Windows: Ctrl+Space
 pub fn register_shortcut(app: &tauri::AppHandle) -> tauri::Result<()> {
     app.global_shortcut()
-        .on_shortcut("ctrl+space", move |app, _shortcut, _event| {
+        .on_shortcut("ctrl+space", move |app, _shortcut, event| {
+            if event.state != ShortcutState::Pressed {
+                return;
+            }
             if let Some(window) = app.get_webview_window("main") {
                 crate::window::toggle_overlay_impl(window);
             }
