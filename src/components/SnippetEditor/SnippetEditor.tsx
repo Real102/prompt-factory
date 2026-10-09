@@ -1,20 +1,15 @@
 import { useState } from 'react';
 import { useSnippetStore } from '@/stores/snippetStore';
 import { useUIStore } from '@/stores/uiStore';
-import { CATEGORIES, CATEGORY_CSS_VARS } from '@/types';
 import type { Category } from '@/types';
 import styles from './SnippetEditor.module.css';
 
-/**
- * 片段新增表单 —— 内联展开, 约 680×120。
- * 分类选择 chips + 名称输入 + 内容文本域 + 保存/取消。
- * 替换 SnippetLibrary 位置显示。
- */
 function SnippetEditor() {
   const addSnippet = useSnippetStore((s) => s.addSnippet);
+  const categories = useSnippetStore((s) => s.categories);
   const toggleSnippetEditor = useUIStore((s) => s.toggleSnippetEditor);
 
-  const [category, setCategory] = useState<Category>('role');
+  const [category, setCategory] = useState<Category>(categories[0]?.id || '');
   const [name, setName] = useState('');
   const [content, setContent] = useState('');
 
@@ -23,22 +18,22 @@ function SnippetEditor() {
     void addSnippet({ name: name.trim(), content: content.trim(), category });
     setName('');
     setContent('');
-    setCategory('role');
+    setCategory(categories[0]?.id || '');
   }
 
   function handleCancel() {
     toggleSnippetEditor();
     setName('');
     setContent('');
-    setCategory('role');
+    setCategory(categories[0]?.id || '');
   }
 
   return (
     <div className={styles.editor}>
       <div className={styles.catRow}>
-        {CATEGORIES.map((catMeta) => {
+        {categories.map((catMeta) => {
           const cat = catMeta.id;
-          const color = CATEGORY_CSS_VARS[cat];
+          const color = catMeta.color;
           const selected = category === cat;
           return (
             <button

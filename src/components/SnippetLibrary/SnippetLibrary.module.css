@@ -16,6 +16,11 @@
   flex-shrink: 0;
 }
 
+.headerBtns {
+  display: flex;
+  gap: 12px;
+}
+
 .title {
   font-family: var(--font-mono);
   font-size: 10px;
@@ -34,6 +39,123 @@
 
 .addBtn:hover {
   color: var(--accent);
+}
+
+.catEditRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 0;
+}
+
+.catNameInput {
+  flex: 1;
+  height: 24px;
+  background: var(--bg-overlay);
+  border: 1px solid var(--stroke);
+  border-radius: 4px;
+  outline: none;
+  padding: 0 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-main);
+}
+
+.catNameInput:focus {
+  border-color: var(--accent);
+}
+
+.catColorInput {
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--stroke);
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.catColorInput::-webkit-color-swatch-wrapper {
+  padding: 2px;
+}
+
+.catColorInput::-webkit-color-swatch {
+  border: none;
+  border-radius: 2px;
+}
+
+.catConfirmBtn {
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 4px;
+  background: var(--accent);
+  color: var(--bg-overlay);
+  font-size: 11px;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.catCancelBtn {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  background: var(--bg-panel2);
+  border: 1px solid var(--stroke);
+  color: var(--text-dim);
+  font-size: 11px;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.catCancelBtn:hover {
+  border-color: var(--accent);
+}
+
+.catActions {
+  display: flex;
+  gap: 4px;
+  margin-left: 4px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.groupHeader:hover .catActions {
+  opacity: 1;
+}
+
+.catActionBtn {
+  width: 18px;
+  height: 18px;
+  border: none;
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 11px;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+}
+
+.catActionBtn:hover {
+  color: var(--accent);
+  background: var(--bg-panel2);
+}
+
+.emptyCat {
+  padding: 8px 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-dim);
 }
 
 .list {
