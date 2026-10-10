@@ -9,6 +9,18 @@ import { CATEGORY_COLOR_POOL } from '@/types';
 import { storageService, getSeedData } from '@/services/storage';
 import { snippetService } from '@/services/snippetService';
 
+const CSS_VAR_COLOR_MAP: Record<string, string> = {
+  'var(--cat-role)': '#c9f73d',
+  'var(--cat-perm)': '#6ad7ff',
+  'var(--cat-avoid)': '#ff7a3d',
+  'var(--cat-fmt)': '#7af0c4',
+  'var(--cat-ctx)': '#ffd24d',
+};
+
+function normalizeColor(color: string): string {
+  return CSS_VAR_COLOR_MAP[color] || color;
+}
+
 /** 片段库 Store 接口 */
 interface SnippetStore {
   /** 所有片段字典 */
@@ -52,9 +64,13 @@ export const useSnippetStore = create<SnippetStore>((set, get) => ({
           loading: false,
         });
       } else {
+        const normalizedCategories = data.categories.map((c) => ({
+          ...c,
+          color: normalizeColor(c.color),
+        }));
         set({
           snippets: data.snippets,
-          categories: data.categories,
+          categories: normalizedCategories,
           loading: false,
         });
       }
@@ -97,7 +113,8 @@ export const useSnippetStore = create<SnippetStore>((set, get) => ({
 
   addCategory: async (name, color) => {
     const { snippets, categories } = get();
-    const catColor = color || CATEGORY_COLOR_POOL[categories.length % CATEGORY_COLOR_POOL.length];
+    const usedColors = new Set(categories.map((c) => c.color));
+    const catColor = color || CATEGORY_COLOR_POOL.find((c) => !usedColors.has(c)) || CATEGORY_COLOR_POOL[categories.length % CATEGORY_COLOR_POOL.length];
     const newCat: CategoryMeta = {
       id: `cat_${Date.now().toString(36)}`,
       name,
