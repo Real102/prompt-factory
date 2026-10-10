@@ -13,6 +13,7 @@ pub fn run() {
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .invoke_handler(tauri::generate_handler![
             window::toggle_overlay,
+            window::start_drag,
             inject::inject_text,
             commands::copy_to_clipboard,
             commands::read_data_file,
@@ -32,7 +33,8 @@ pub fn run() {
             // 注册全局快捷键
             shortcut::register_shortcut(app.handle())?;
 
-            // 注册窗口失焦自动收起
+            // 注册窗口失焦自动收起（仅 release，debug 模式保留窗口方便调试）
+            // #[cfg(not(debug_assertions))]
             window::setup_auto_hide(app.handle());
 
             Ok(())

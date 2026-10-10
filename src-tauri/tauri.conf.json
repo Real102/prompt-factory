@@ -21,7 +21,10 @@
         "alwaysOnTop": true,
         "center": true,
         "resizable": false,
-        "visible": false
+        "visible": false,
+        "shadow": false,
+        "backgroundColor": "#00000000",
+        "noRedirectionBitmap": true
       }
     ],
     "security": {
