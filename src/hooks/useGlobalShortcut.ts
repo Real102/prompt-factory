@@ -22,8 +22,13 @@ export function useGlobalShortcut(): void {
       const uiState = useUIStore.getState();
       const assemblyState = useAssemblyStore.getState();
 
-      // Escape → 收起浮层
+      // Escape → 编辑模式下退出编辑，否则收起浮层
       if (e.key === 'Escape') {
+        if (assemblyState.mode === 'editing') {
+          e.preventDefault();
+          assemblyState.exitEditing();
+          return;
+        }
         if (uiState.overlayVisible) {
           e.preventDefault();
           void uiState.toggleOverlay();
