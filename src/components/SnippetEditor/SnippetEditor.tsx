@@ -6,26 +6,30 @@ import styles from './SnippetEditor.module.css';
 
 function SnippetEditor() {
   const addSnippet = useSnippetStore((s) => s.addSnippet);
+  const updateSnippet = useSnippetStore((s) => s.updateSnippet);
+  const snippets = useSnippetStore((s) => s.snippets);
   const categories = useSnippetStore((s) => s.categories);
+  const editingSnippetId = useUIStore((s) => s.editingSnippetId);
   const toggleSnippetEditor = useUIStore((s) => s.toggleSnippetEditor);
 
-  const [category, setCategory] = useState<Category>(categories[0]?.id || '');
-  const [name, setName] = useState('');
-  const [content, setContent] = useState('');
+  const editingSnippet = editingSnippetId ? snippets[editingSnippetId] : null;
+
+  const [category, setCategory] = useState<Category>(editingSnippet?.category || categories[0]?.id || '');
+  const [name, setName] = useState(editingSnippet?.name || '');
+  const [content, setContent] = useState(editingSnippet?.content || '');
 
   function handleSave() {
     if (!name.trim() || !content.trim()) return;
-    void addSnippet({ name: name.trim(), content: content.trim(), category });
-    setName('');
-    setContent('');
-    setCategory(categories[0]?.id || '');
+    if (editingSnippetId) {
+      void updateSnippet(editingSnippetId, { name: name.trim(), content: content.trim(), category });
+    } else {
+      void addSnippet({ name: name.trim(), content: content.trim(), category });
+    }
+    toggleSnippetEditor();
   }
 
   function handleCancel() {
     toggleSnippetEditor();
-    setName('');
-    setContent('');
-    setCategory(categories[0]?.id || '');
   }
 
   return (
@@ -62,17 +66,18 @@ function SnippetEditor() {
         placeholder="片段名称…"
         value={name}
         onChange={(e) => setName(e.target.value)}
+        autoFocus
       />
       <textarea
         className={styles.contentInput}
         placeholder="输入片段内容…"
         value={content}
         onChange={(e) => setContent(e.target.value)}
-        rows={2}
+        rows={4}
       />
       <div className={styles.actions}>
         <button type="button" className={styles.saveBtn} onClick={handleSave}>
-          保存
+          {editingSnippetId ? '更新' : '保存'}
         </button>
         <button type="button" className={styles.cancelBtn} onClick={handleCancel}>
           取消

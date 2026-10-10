@@ -19,6 +19,7 @@ import Toast from './components/Toast/Toast';
 function App() {
   const loadSnippets = useSnippetStore((s) => s.loadSnippets);
   const showSnippetEditor = useUIStore((s) => s.showSnippetEditor);
+  const editingSnippetId = useUIStore((s) => s.editingSnippetId);
 
   useGlobalShortcut();
 
@@ -32,7 +33,7 @@ function App() {
       <AssemblyTrack />
       <PreviewPanel />
       <BottomBar />
-      {showSnippetEditor ? <SnippetEditor /> : <SnippetLibrary />}
+      {showSnippetEditor ? <SnippetEditor key={editingSnippetId || 'new'} /> : <SnippetLibrary />}
       <Toast />
     </Overlay>
   );
