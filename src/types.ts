@@ -64,9 +64,9 @@ export const CATEGORY_COLOR_POOL: string[] = [
 
 /** 分类元信息列表（供种子数据与 UI 使用） */
 export const CATEGORIES: CategoryMeta[] = [
-  { id: 'role', name: '角色', color: 'var(--cat-role)' },
-  { id: 'perm', name: '权限', color: 'var(--cat-perm)' },
-  { id: 'avoid', name: '避免', color: 'var(--cat-avoid)' },
-  { id: 'fmt', name: '格式', color: 'var(--cat-fmt)' },
-  { id: 'ctx', name: '上下文', color: 'var(--cat-ctx)' },
+  { id: 'role', name: '角色', color: '#c9f73d' },
+  { id: 'perm', name: '权限', color: '#6ad7ff' },
+  { id: 'avoid', name: '避免', color: '#ff7a3d' },
+  { id: 'fmt', name: '格式', color: '#7af0c4' },
+  { id: 'ctx', name: '上下文', color: '#ffd24d' },
 ];
