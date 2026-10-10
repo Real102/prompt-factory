@@ -99,3 +99,12 @@
 .remove:hover {
   color: var(--cat-avoid);
 }
+
+.locked {
+  opacity: 1;
+}
+
+.chipLocked {
+  opacity: 0.45;
+  cursor: not-allowed;
+}

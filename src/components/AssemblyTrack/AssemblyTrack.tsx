@@ -18,12 +18,14 @@ function AssemblyTrack() {
   const assemblyItems = useAssemblyStore((s) => s.assemblyItems);
   const reorderAssembly = useAssemblyStore((s) => s.reorderAssembly);
   const removeFromAssembly = useAssemblyStore((s) => s.removeFromAssembly);
+  const isLocked = useAssemblyStore((s) => s.isLocked);
 
   const assemblySnippets = assemblyItems
     .map((id) => snippets[id])
     .filter((s): s is Snippet => s != null);
 
   function handleDragEnd(event: DragEndEvent) {
+    if (isLocked) return;
     const { active, over } = event;
     if (over && active.id !== over.id) {
       const oldIndex = assemblyItems.indexOf(String(active.id));
@@ -35,8 +37,10 @@ function AssemblyTrack() {
   }
 
   return (
-    <div className={styles.track}>
-      <span className={styles.label}>ASSEMBLY · 拖拽排序</span>
+    <div className={`${styles.track} ${isLocked ? styles.locked : ''}`}>
+      <span className={styles.label}>
+        ASSEMBLY · {isLocked ? '已锁定' : '拖拽排序'}
+      </span>
       <div className={styles.chips}>
         {assemblySnippets.length === 0 ? (
           <div className={styles.empty}>从下方片段库勾选片段加入拼装台 →</div>
@@ -52,6 +56,7 @@ function AssemblyTrack() {
                   snippet={snippet}
                   index={index}
                   onRemove={removeFromAssembly}
+                  isLocked={isLocked}
                 />
               ))}
             </SortableContext>

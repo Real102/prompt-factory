@@ -1,12 +1,14 @@
 import { useState } from 'react';
+import { useWindowDrag } from '@/hooks/useWindowDrag';
 import styles from './SearchBar.module.css';
 
 function SearchBar() {
   const [query, setQuery] = useState('');
+  const { onMouseDown } = useWindowDrag();
 
   return (
-    <div className={styles.bar} data-tauri-drag-region>
-      <div className={styles.brandRow} data-tauri-drag-region>
+    <div className={styles.bar}>
+      <div className={styles.brandRow} onMouseDown={onMouseDown}>
         <span className={styles.logoGroup}>
           <span className={styles.pf}>PF</span>
           <span className={styles.full}>Prompt-Factory</span>
@@ -16,7 +18,7 @@ function SearchBar() {
           <span className={styles.slogan}>片段成串，注入即用</span>
         </span>
       </div>
-      <div className={styles.searchRow} data-tauri-drag-region>
+      <div className={styles.searchRow}>
         <div className={styles.left}>
           <svg className={styles.icon} width="14" height="14" viewBox="0 0 14 14" fill="none">
             <circle cx="6" cy="6" r="4.5" stroke="currentColor" strokeWidth="1.2" />

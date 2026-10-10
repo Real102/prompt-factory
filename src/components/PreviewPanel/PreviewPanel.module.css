@@ -44,3 +44,30 @@
   font-size: 12px;
   color: var(--text-dim);
 }
+
+.editing {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px rgba(201, 247, 61, 0.15);
+}
+
+.textarea {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text-main);
+  white-space: pre-wrap;
+  word-break: break-word;
+  padding: 24px 16px 12px;
+  height: 100%;
+  width: 100%;
+  overflow-y: auto;
+  margin: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  resize: none;
+}
+
+.textarea:focus {
+  outline: none;
+}
