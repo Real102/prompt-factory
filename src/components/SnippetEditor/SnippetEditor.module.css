@@ -12,6 +12,43 @@
 .catRow {
   display: flex;
   gap: 8px;
+  align-items: center;
+}
+
+.catSearch {
+  width: 96px;
+  height: 24px;
+  flex-shrink: 0;
+  background: var(--bg-overlay);
+  border: 1px solid var(--stroke);
+  border-radius: 4px;
+  outline: none;
+  padding: 0 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-main);
+}
+
+.catSearch::placeholder {
+  color: var(--text-dim);
+}
+
+.catSearch:focus {
+  border-color: var(--accent);
+}
+
+.catChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  flex: 1;
+  align-items: center;
+}
+
+.catEmpty {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-dim);
 }
 
 .catChip {
@@ -48,7 +85,7 @@
 }
 
 .contentInput {
-  height: 48px;
+  height: 96px;
   background: var(--bg-overlay);
   border: 1px solid var(--stroke);
   border-radius: 4px;

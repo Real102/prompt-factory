@@ -17,6 +17,11 @@ function SnippetEditor() {
   const [category, setCategory] = useState<Category>(editingSnippet?.category || categories[0]?.id || '');
   const [name, setName] = useState(editingSnippet?.name || '');
   const [content, setContent] = useState(editingSnippet?.content || '');
+  const [catQuery, setCatQuery] = useState('');
+
+  const filteredCategories = categories.filter((c) =>
+    c.name.toLowerCase().includes(catQuery.trim().toLowerCase())
+  );
 
   function handleSave() {
     if (!name.trim() || !content.trim()) return;
@@ -35,30 +40,42 @@ function SnippetEditor() {
   return (
     <div className={styles.editor}>
       <div className={styles.catRow}>
-        {categories.map((catMeta) => {
-          const cat = catMeta.id;
-          const color = catMeta.color;
-          const selected = category === cat;
-          return (
-            <button
-              key={cat}
-              type="button"
-              className={styles.catChip}
-              style={
-                selected
-                  ? {
-                      background: `color-mix(in srgb, ${color} 15%, transparent)`,
-                      borderColor: color,
-                      color,
-                    }
-                  : undefined
-              }
-              onClick={() => setCategory(cat)}
-            >
-              {catMeta.name}
-            </button>
-          );
-        })}
+        <input
+          className={styles.catSearch}
+          type="text"
+          placeholder="搜索分类…"
+          value={catQuery}
+          onChange={(e) => setCatQuery(e.target.value)}
+        />
+        <div className={styles.catChips}>
+          {filteredCategories.map((catMeta) => {
+            const cat = catMeta.id;
+            const color = catMeta.color;
+            const selected = category === cat;
+            return (
+              <button
+                key={cat}
+                type="button"
+                className={styles.catChip}
+                style={
+                  selected
+                    ? {
+                        background: `color-mix(in srgb, ${color} 15%, transparent)`,
+                        borderColor: color,
+                        color,
+                      }
+                    : undefined
+                }
+                onClick={() => setCategory(cat)}
+              >
+                {catMeta.name}
+              </button>
+            );
+          })}
+          {filteredCategories.length === 0 && (
+            <span className={styles.catEmpty}>无匹配分类</span>
+          )}
+        </div>
       </div>
       <input
         className={styles.nameInput}
