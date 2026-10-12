@@ -1,4 +1,5 @@
 .overlay {
+  position: relative;
   width: 680px;
   border-radius: 12px;
   background: var(--bg-overlay);

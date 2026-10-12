@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useUIStore } from '@/stores/uiStore';
 import { useWindowDrag } from '@/hooks/useWindowDrag';
 import styles from './SearchBar.module.css';
 
 function SearchBar() {
-  const [query, setQuery] = useState('');
+  const query = useUIStore((s) => s.searchQuery);
+  const setQuery = useUIStore((s) => s.setSearchQuery);
+  const setSearchPanelOpen = useUIStore((s) => s.setSearchPanelOpen);
   const { onMouseDown } = useWindowDrag();
 
   return (
@@ -18,7 +20,7 @@ function SearchBar() {
           <span className={styles.slogan}>片段成串，注入即用</span>
         </span>
       </div>
-      <div className={styles.searchRow}>
+      <div className={styles.searchRow} data-search-row>
         <div className={styles.left}>
           <svg className={styles.icon} width="14" height="14" viewBox="0 0 14 14" fill="none">
             <circle cx="6" cy="6" r="4.5" stroke="currentColor" strokeWidth="1.2" />
@@ -34,7 +36,10 @@ function SearchBar() {
             type="text"
             placeholder="搜索片段…"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setSearchPanelOpen(e.target.value.trim().length > 0);
+            }}
           />
         </div>
         <span className={styles.hint}>Ctrl Space</span>

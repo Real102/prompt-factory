@@ -4,6 +4,7 @@ import { useUIStore } from '@/stores/uiStore';
 import { useGlobalShortcut } from '@/hooks/useGlobalShortcut';
 import Overlay from './components/Overlay/Overlay';
 import SearchBar from './components/SearchBar/SearchBar';
+import SearchResults from './components/SearchResults/SearchResults';
 import AssemblyTrack from './components/AssemblyTrack/AssemblyTrack';
 import PreviewPanel from './components/PreviewPanel/PreviewPanel';
 import BottomBar from './components/BottomBar/BottomBar';
@@ -30,6 +31,7 @@ function App() {
   return (
     <Overlay>
       <SearchBar />
+      <SearchResults />
       <AssemblyTrack />
       <PreviewPanel />
       <BottomBar />
