@@ -22,6 +22,14 @@ interface UIStore {
   showSnippetEditor: boolean;
   /** 正在编辑的片段 ID，null=新增模式 */
   editingSnippetId: string | null;
+  /** 片段库搜索关键词 */
+  searchQuery: string;
+  /** 搜索结果覆盖层是否展开 */
+  searchPanelOpen: boolean;
+  /** 设置片段库搜索关键词 */
+  setSearchQuery: (q: string) => void;
+  /** 设置搜索结果覆盖层展开状态 */
+  setSearchPanelOpen: (open: boolean) => void;
   /** 切换浮层显隐（调用 Rust toggle_overlay + 同步前端状态） */
   toggleOverlay: () => Promise<void>;
   /** 仅同步前端状态为隐藏（Rust 端已隐藏窗口时使用） */
@@ -42,6 +50,8 @@ export const useUIStore = create<UIStore>((set) => ({
   toast: null,
   showSnippetEditor: false,
   editingSnippetId: null,
+  searchQuery: '',
+  searchPanelOpen: false,
 
   toggleOverlay: async () => {
     try {
@@ -54,6 +64,14 @@ export const useUIStore = create<UIStore>((set) => ({
 
   hideOverlay: () => {
     set({ overlayVisible: false });
+  },
+
+  setSearchQuery: (q) => {
+    set({ searchQuery: q });
+  },
+
+  setSearchPanelOpen: (open) => {
+    set({ searchPanelOpen: open });
   },
 
   showToast: (msg, type) => {
