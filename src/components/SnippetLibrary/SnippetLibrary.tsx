@@ -48,8 +48,8 @@ function SnippetLibrary() {
     if (initializedRef.current || categories.length === 0) return;
     initializedRef.current = true;
     const initial: Record<string, boolean> = {};
-    categories.forEach((c, i) => {
-      initial[c.id] = i !== 0;
+    categories.forEach((c) => {
+      initial[c.id] = true;
     });
     setCollapsed(initial);
   }, [categories]);
