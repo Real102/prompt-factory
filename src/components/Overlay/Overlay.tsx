@@ -15,12 +15,14 @@ function Overlay({ children, visible = true }: OverlayProps) {
     const el = ref.current;
     if (!el) return;
 
+    // 高度上限：固定 800px，超出时内容在内部滚动，而非无限撑大窗口
+    const maxH = 800;
+    el.style.maxHeight = `${maxH}px`;
+
     let lastHeight = 0;
 
     const updateSize = async (height: number) => {
-      const minHeight = 400;
-      const maxHeight = window.screen.height - 80;
-      const finalHeight = Math.min(Math.max(height, minHeight), maxHeight);
+      const finalHeight = Math.max(height, 400);
       if (finalHeight === lastHeight) return;
       lastHeight = finalHeight;
       try {
@@ -32,14 +34,12 @@ function Overlay({ children, visible = true }: OverlayProps) {
     };
 
     const observer = new ResizeObserver(() => {
-      const height = el.offsetHeight;
-      void updateSize(height);
+      void updateSize(el.offsetHeight);
     });
 
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
-
   return (
     <div ref={ref} className={`${styles.overlay} ${visible ? styles.visible : styles.hidden}`}>
       {children}
