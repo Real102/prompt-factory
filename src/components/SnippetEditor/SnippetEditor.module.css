@@ -12,7 +12,7 @@
 .catRow {
   display: flex;
   gap: 8px;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .catSearch {
@@ -39,19 +39,38 @@
 
 .catChips {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 8px;
   flex: 1;
+  min-width: 0;
   align-items: center;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  margin-bottom: -2px;
+}
+
+.catChips::-webkit-scrollbar {
+  height: 2px;
+}
+
+.catChips::-webkit-scrollbar-thumb {
+  background: var(--stroke);
+  border-radius: 1px;
+}
+
+.catChips::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .catEmpty {
+  flex-shrink: 0;
   font-family: var(--font-mono);
   font-size: 11px;
   color: var(--text-dim);
 }
 
 .catChip {
+  flex-shrink: 0;
   height: 24px;
   padding: 0 10px;
   border-radius: 4px;
