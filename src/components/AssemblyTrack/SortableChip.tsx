@@ -3,6 +3,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import type { Snippet } from '@/types';
 import { CATEGORY_CSS_VARS } from '@/types';
+import { useSnippetStore } from '@/stores/snippetStore';
 import styles from './AssemblyTrack.module.css';
 
 interface SortableChipProps {
@@ -14,7 +15,7 @@ interface SortableChipProps {
 
 /**
  * 拼装台中可拖拽排序的 chip。
- * 高 38, 圆角 6, 填充 var(--bg-overlay), 描边为分类色 CSS 变量。
+ * 高 38, 圆角 6, 填充 var(--bg-overlay), 描边为分类色（含自定义分类）。
  * 内含 8×8 色点 + "N 片段名" + × 删除按钮。
  * isLocked 时隐藏 × 按钮、禁用拖拽。
  */
@@ -22,7 +23,11 @@ function SortableChip({ snippet, index, onRemove, isLocked }: SortableChipProps)
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: snippet.id, disabled: isLocked });
 
-  const color = CATEGORY_CSS_VARS[snippet.category];
+  const categories = useSnippetStore((s) => s.categories);
+  const color =
+    categories.find((c) => c.id === snippet.category)?.color ||
+    CATEGORY_CSS_VARS[snippet.category] ||
+    '#c9f73d';
 
   const style: CSSProperties = {
     transform: CSS.Transform.toString(transform),
