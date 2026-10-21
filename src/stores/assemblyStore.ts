@@ -5,7 +5,7 @@
 
 import { create } from 'zustand';
 import { invoke } from '@tauri-apps/api/core';
-import { compose } from '@/services/composeEngine';
+import { compose, applyVariables } from '@/services/composeEngine';
 import { useSnippetStore } from './snippetStore';
 import { useUIStore } from './uiStore';
 
@@ -13,8 +13,10 @@ import { useUIStore } from './uiStore';
 interface AssemblyStore {
   /** 拼装台中的片段 ID 列表（有序） */
   assemblyItems: string[];
-  /** 组合后的完整文本（自动合成，派生） */
+  /** 组合后的完整文本（自动合成，派生，含 {{}} 占位符） */
   composedText: string;
+  /** 变量值字典（运行时状态，不持久化） */
+  variables: Record<string, string>;
   /** 是否可执行操作（注入/复制） */
   canAction: boolean;
   /** 当前模式 */
@@ -31,6 +33,8 @@ interface AssemblyStore {
   reorderAssembly: (from: number, to: number) => void;
   /** 清空拼装台 */
   clearAssembly: () => void;
+  /** 设置变量值 */
+  setVariable: (name: string, value: string) => void;
   /** 进入编辑模式 */
   enterEditing: () => void;
   /** 退出编辑模式（锁定拼装台） */
@@ -59,6 +63,7 @@ function computeComposedText(
 export const useAssemblyStore = create<AssemblyStore>((set, get) => ({
   assemblyItems: [],
   composedText: '',
+  variables: {},
   canAction: false,
   mode: 'assembly',
   isLocked: false,
@@ -72,6 +77,7 @@ export const useAssemblyStore = create<AssemblyStore>((set, get) => ({
     set({
       assemblyItems: next,
       composedText: computeComposedText(next),
+      variables: {},
       canAction: next.length > 0,
     });
   },
@@ -113,6 +119,7 @@ export const useAssemblyStore = create<AssemblyStore>((set, get) => ({
     set({
       assemblyItems: [],
       composedText: '',
+      variables: {},
       canAction: false,
       mode: 'assembly',
       isLocked: false,
@@ -120,12 +127,24 @@ export const useAssemblyStore = create<AssemblyStore>((set, get) => ({
     });
   },
 
+  setVariable: (name, value) => {
+    const { variables } = get();
+    set({ variables: { ...variables, [name]: value } });
+  },
+
   enterEditing: () => {
-    const { composedText, editedText } = get();
-    if (!composedText && !editedText) return;
+    const { composedText, editedText, variables } = get();
+    // 占位符前后各加一个空格，再替换变量值
+    // 编辑框中通过空格辨认变量填入部分（textarea 无法富文本高亮）
+    const padded = composedText.replace(
+      /\{\{([\w\u4e00-\u9fff]+)\}\}/g,
+      ' $& '
+    );
+    const resolved = applyVariables(padded, variables);
+    if (!resolved && !editedText) return;
     set({
       mode: 'editing',
-      editedText: editedText ?? composedText,
+      editedText: editedText ?? resolved,
     });
   },
 
@@ -149,7 +168,8 @@ export const useAssemblyStore = create<AssemblyStore>((set, get) => ({
   },
 
   injectToCursor: async () => {
-    const text = get().editedText ?? get().composedText;
+    const { editedText, composedText, variables } = get();
+    const text = editedText ?? applyVariables(composedText, variables);
     if (!text) return;
     try {
       const ok = await invoke<boolean>('inject_text', { text });
@@ -164,7 +184,8 @@ export const useAssemblyStore = create<AssemblyStore>((set, get) => ({
   },
 
   copyToClipboard: async () => {
-    const text = get().editedText ?? get().composedText;
+    const { editedText, composedText, variables } = get();
+    const text = editedText ?? applyVariables(composedText, variables);
     if (!text) return;
     try {
       const ok = await invoke<boolean>('copy_to_clipboard', { text });

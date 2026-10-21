@@ -1,4 +1,5 @@
 import { useAssemblyStore } from '@/stores/assemblyStore';
+import { applyVariables } from '@/services/composeEngine';
 import styles from './BottomBar.module.css';
 
 /**
@@ -13,6 +14,7 @@ function BottomBar() {
   const mode = useAssemblyStore((s) => s.mode);
   const isLocked = useAssemblyStore((s) => s.isLocked);
   const composedText = useAssemblyStore((s) => s.composedText);
+  const variables = useAssemblyStore((s) => s.variables);
   const editedText = useAssemblyStore((s) => s.editedText);
   const enterEditing = useAssemblyStore((s) => s.enterEditing);
   const exitEditing = useAssemblyStore((s) => s.exitEditing);
@@ -21,7 +23,7 @@ function BottomBar() {
   const injectToCursor = useAssemblyStore((s) => s.injectToCursor);
 
   const isEditing = mode === 'editing';
-  const hasContent = (editedText ?? composedText).length > 0;
+  const hasContent = (editedText ?? applyVariables(composedText, variables)).length > 0;
 
   return (
     <div className={styles.bar}>

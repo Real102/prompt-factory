@@ -6,6 +6,7 @@ import Overlay from './components/Overlay/Overlay';
 import SearchBar from './components/SearchBar/SearchBar';
 import SearchResults from './components/SearchResults/SearchResults';
 import AssemblyTrack from './components/AssemblyTrack/AssemblyTrack';
+import VariableSlots from './components/VariableSlots/VariableSlots';
 import PreviewPanel from './components/PreviewPanel/PreviewPanel';
 import BottomBar from './components/BottomBar/BottomBar';
 import SnippetLibrary from './components/SnippetLibrary/SnippetLibrary';
@@ -33,6 +34,7 @@ function App() {
       <SearchBar />
       <SearchResults />
       <AssemblyTrack />
+      <VariableSlots />
       <PreviewPanel />
       <BottomBar />
       {showSnippetEditor ? <SnippetEditor key={editingSnippetId || 'new'} /> : <SnippetLibrary />}

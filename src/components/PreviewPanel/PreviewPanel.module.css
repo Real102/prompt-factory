@@ -71,3 +71,7 @@
 .textarea:focus {
   outline: none;
 }
+
+.varHighlight {
+  font-weight: 600;
+}
