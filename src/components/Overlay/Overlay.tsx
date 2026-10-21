@@ -16,7 +16,7 @@ function Overlay({ children, visible = true }: OverlayProps) {
     if (!el) return;
 
     // 高度上限：固定 800px，超出时内容在内部滚动，而非无限撑大窗口
-    const maxH = 800;
+    const maxH = 850;
     el.style.maxHeight = `${maxH}px`;
 
     let lastHeight = 0;
