@@ -11,6 +11,7 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
+        .plugin(tauri_plugin_dialog::init())
         .invoke_handler(tauri::generate_handler![
             window::toggle_overlay,
             window::start_drag,
@@ -18,6 +19,8 @@ pub fn run() {
             commands::copy_to_clipboard,
             commands::read_data_file,
             commands::write_data_file,
+            commands::export_data,
+            commands::import_data,
         ])
         .setup(|app| {
             #[cfg(debug_assertions)]
