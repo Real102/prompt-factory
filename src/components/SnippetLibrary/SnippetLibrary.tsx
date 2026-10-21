@@ -60,6 +60,15 @@ function SnippetLibrary() {
     return cat?.color || '#c9f73d';
   };
 
+  // 从色池中分配未被现有分类使用的颜色（PRD 6.6：避免重复）
+  const nextColor = (): string => {
+    const used = new Set(categories.map((c) => c.color));
+    return (
+      CATEGORY_COLOR_POOL.find((c) => !used.has(c)) ||
+      CATEGORY_COLOR_POOL[categories.length % CATEGORY_COLOR_POOL.length]
+    );
+  };
+
   function toggleAssembly(id: string) {
     if (isInAssembly(id)) {
       removeFromAssembly(id);
@@ -76,7 +85,7 @@ function SnippetLibrary() {
     if (!newCatName.trim()) return;
     void addCategory(newCatName.trim(), newCatColor);
     setNewCatName('');
-    setNewCatColor(CATEGORY_COLOR_POOL[0]);
+    setNewCatColor(nextColor());
     setNewCatMode(false);
   }
 
@@ -107,7 +116,7 @@ function SnippetLibrary() {
       <div className={styles.header}>
         <span className={styles.title}>SNIPPET LIBRARY · 片段库</span>
         <div className={styles.headerBtns}>
-          <button type="button" className={styles.addBtn} onClick={() => setNewCatMode(true)}>
+          <button type="button" className={styles.addBtn} onClick={() => { setNewCatMode(true); setNewCatColor(nextColor()); }}>
             + 分类
           </button>
           <button type="button" className={styles.addBtn} onClick={toggleSnippetEditor}>
