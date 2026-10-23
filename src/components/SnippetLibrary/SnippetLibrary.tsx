@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useLayoutEffect, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useSnippetStore } from '@/stores/snippetStore';
 import { useAssemblyStore } from '@/stores/assemblyStore';
 import { useUIStore } from '@/stores/uiStore';
@@ -30,7 +31,32 @@ function SnippetLibrary() {
   const [confirmCatId, setConfirmCatId] = useState<string | null>(null);
   const [confirmSnippetId, setConfirmSnippetId] = useState<string | null>(null);
   const popconfirmRef = useRef<HTMLDivElement>(null);
+  const popTriggerRef = useRef<HTMLButtonElement | null>(null);
   const initializedRef = useRef(false);
+
+  const updatePopPosition = useCallback(() => {
+    const pop = popconfirmRef.current;
+    const btn = popTriggerRef.current;
+    if (!pop || !btn) return;
+    const rect = btn.getBoundingClientRect();
+    const popRect = pop.getBoundingClientRect();
+    const margin = 6;
+    const pad = 8;
+    let top: number;
+    if (rect.top - popRect.height - margin >= pad) {
+      top = rect.top - popRect.height - margin;
+    } else {
+      top = rect.bottom + margin;
+    }
+    let left = rect.right - popRect.width;
+    if (left < pad) left = pad;
+    if (left + popRect.width > window.innerWidth - pad) {
+      left = window.innerWidth - pad - popRect.width;
+    }
+    pop.style.top = `${Math.round(top)}px`;
+    pop.style.left = `${Math.round(left)}px`;
+    pop.style.visibility = 'visible';
+  }, []);
 
   useEffect(() => {
     if (!confirmCatId && !confirmSnippetId) return;
@@ -40,9 +66,21 @@ function SnippetLibrary() {
         setConfirmSnippetId(null);
       }
     };
+    const reposition = () => updatePopPosition();
     document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [confirmCatId, confirmSnippetId]);
+    window.addEventListener('scroll', reposition, true);
+    window.addEventListener('resize', reposition);
+    return () => {
+      document.removeEventListener('mousedown', handler);
+      window.removeEventListener('scroll', reposition, true);
+      window.removeEventListener('resize', reposition);
+    };
+  }, [confirmCatId, confirmSnippetId, updatePopPosition]);
+
+  useLayoutEffect(() => {
+    if (!confirmCatId && !confirmSnippetId) return;
+    updatePopPosition();
+  }, [confirmCatId, confirmSnippetId, updatePopPosition]);
 
   useEffect(() => {
     if (initializedRef.current || categories.length === 0) return;
@@ -104,6 +142,16 @@ function SnippetLibrary() {
   function confirmDeleteCategory(catId: string) {
     void deleteCategory(catId);
     setConfirmCatId(null);
+  }
+
+  function openCatConfirm(e: React.MouseEvent<HTMLButtonElement>, catId: string) {
+    popTriggerRef.current = e.currentTarget;
+    setConfirmCatId(catId);
+  }
+
+  function openSnippetConfirm(e: React.MouseEvent<HTMLButtonElement>, id: string) {
+    popTriggerRef.current = e.currentTarget;
+    setConfirmSnippetId(id);
   }
 
   function confirmDeleteSnippet(id: string) {
@@ -195,7 +243,7 @@ function SnippetLibrary() {
                 </div>
               ) : (
                 <div
-                  className={styles.groupHeader}
+                  className={`${styles.groupHeader} ${isConfirming ? styles.groupConfirming : ''}`}
                   onClick={() => toggleCollapse(cat)}
                 >
                   <span className={styles.groupDot} style={{ background: color }} />
@@ -220,32 +268,33 @@ function SnippetLibrary() {
                         type="button"
                         className={styles.catActionBtn}
                         title="删除分类"
-                        onClick={() => setConfirmCatId(cat)}
+                        onClick={(e) => openCatConfirm(e, cat)}
                       >
                         ✕
                       </button>
-                      {isConfirming && (
-                        <div className={styles.popconfirm} ref={popconfirmRef}>
-                          <span className={styles.popconfirmMsg}>{confirmMsg}</span>
-                          <div className={styles.popconfirmBtns}>
-                            <button
-                              type="button"
-                              className={styles.popconfirmCancel}
-                              onClick={() => setConfirmCatId(null)}
-                            >
-                              取消
-                            </button>
-                            <button
-                              type="button"
-                              className={styles.popconfirmOk}
-                              onClick={() => confirmDeleteCategory(cat)}
-                            >
-                              删除
-                            </button>
-                          </div>
-                        </div>
-                      )}
                     </span>
+                    {isConfirming && createPortal(
+                      <div className={styles.popconfirm} ref={popconfirmRef}>
+                        <span className={styles.popconfirmMsg}>{confirmMsg}</span>
+                        <div className={styles.popconfirmBtns}>
+                          <button
+                            type="button"
+                            className={styles.popconfirmCancel}
+                            onClick={() => setConfirmCatId(null)}
+                          >
+                            取消
+                          </button>
+                          <button
+                            type="button"
+                            className={styles.popconfirmOk}
+                            onClick={() => confirmDeleteCategory(cat)}
+                          >
+                            删除
+                          </button>
+                        </div>
+                      </div>,
+                      document.body
+                    )}
                   </span>
                 </div>
               )}
@@ -261,7 +310,7 @@ function SnippetLibrary() {
                       return (
                         <div
                           key={snippet.id}
-                          className={`${styles.item} ${checked ? styles.itemSelected : ''}`}
+                          className={`${styles.item} ${checked ? styles.itemSelected : ''} ${isSnippetConfirming ? styles.itemConfirming : ''}`}
                           style={checked ? { borderLeftColor: catColor } : undefined}
                           onClick={() => toggleAssembly(snippet.id)}
                         >
@@ -289,32 +338,33 @@ function SnippetLibrary() {
                                 type="button"
                                 className={styles.catActionBtn}
                                 title="删除片段"
-                                onClick={() => setConfirmSnippetId(snippet.id)}
+                                onClick={(e) => openSnippetConfirm(e, snippet.id)}
                               >
                                 ✕
                               </button>
-                              {isSnippetConfirming && (
-                                <div className={styles.popconfirm} ref={popconfirmRef}>
-                                  <span className={styles.popconfirmMsg}>{`删除片段「${snippet.name}」？`}</span>
-                                  <div className={styles.popconfirmBtns}>
-                                    <button
-                                      type="button"
-                                      className={styles.popconfirmCancel}
-                                      onClick={() => setConfirmSnippetId(null)}
-                                    >
-                                      取消
-                                    </button>
-                                    <button
-                                      type="button"
-                                      className={styles.popconfirmOk}
-                                      onClick={() => confirmDeleteSnippet(snippet.id)}
-                                    >
-                                      删除
-                                    </button>
-                                  </div>
-                                </div>
-                              )}
                             </span>
+                            {isSnippetConfirming && createPortal(
+                              <div className={styles.popconfirm} ref={popconfirmRef}>
+                                <span className={styles.popconfirmMsg}>{`删除片段「${snippet.name}」？`}</span>
+                                <div className={styles.popconfirmBtns}>
+                                  <button
+                                    type="button"
+                                    className={styles.popconfirmCancel}
+                                    onClick={() => setConfirmSnippetId(null)}
+                                  >
+                                    取消
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className={styles.popconfirmOk}
+                                    onClick={() => confirmDeleteSnippet(snippet.id)}
+                                  >
+                                    删除
+                                  </button>
+                                </div>
+                              </div>,
+                              document.body
+                            )}
                           </span>
                           <span
                             className={`${styles.checkbox} ${checked ? styles.checked : ''}`}
