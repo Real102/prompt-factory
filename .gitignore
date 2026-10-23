@@ -24,3 +24,5 @@ Thumbs.db
 
 # Tauri generated
 src-tauri/gen/
+
+build
