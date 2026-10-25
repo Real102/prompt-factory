@@ -26,6 +26,14 @@ interface UIStore {
   searchQuery: string;
   /** 搜索结果覆盖层是否展开 */
   searchPanelOpen: boolean;
+  /** 底部区域当前 Tab：模板 / 片段库 */
+  activeTab: 'template' | 'snippet';
+  /** 模板编辑器是否展开 */
+  showTemplateEditor: boolean;
+  /** 正在编辑的模板 ID，null=新增模式 */
+  editingTemplateId: string | null;
+  /** 当前选中的模板 ID（高亮态），null=未选中 */
+  selectedTemplateId: string | null;
   /** 设置片段库搜索关键词 */
   setSearchQuery: (q: string) => void;
   /** 设置搜索结果覆盖层展开状态 */
@@ -40,6 +48,18 @@ interface UIStore {
   toggleSnippetEditor: () => void;
   /** 开始编辑片段（打开编辑器并预填数据） */
   startEditSnippet: (id: string) => void;
+  /** 设置底部 Tab */
+  setActiveTab: (tab: 'template' | 'snippet') => void;
+  /** 切换模板编辑器面板（新增模式） */
+  toggleTemplateEditor: () => void;
+  /** 开始编辑模板（打开编辑器并预填数据） */
+  startEditTemplate: (id: string) => void;
+  /** 设置选中模板 */
+  setSelectedTemplate: (id: string | null) => void;
+  /** 分类新增模式是否展开（片段库内，由 TabBar 的+分类触发） */
+  showCategoryEditor: boolean;
+  /** 设置分类新增模式 */
+  setShowCategoryEditor: (open: boolean) => void;
 }
 
 /** Toast 自动清除计时器 */
@@ -52,6 +72,11 @@ export const useUIStore = create<UIStore>((set) => ({
   editingSnippetId: null,
   searchQuery: '',
   searchPanelOpen: false,
+  activeTab: 'template',
+  showTemplateEditor: false,
+  editingTemplateId: null,
+  selectedTemplateId: null,
+  showCategoryEditor: false,
 
   toggleOverlay: async () => {
     try {
@@ -91,5 +116,25 @@ export const useUIStore = create<UIStore>((set) => ({
 
   startEditSnippet: (id: string) => {
     set({ showSnippetEditor: true, editingSnippetId: id });
+  },
+
+  setActiveTab: (tab) => {
+    set({ activeTab: tab });
+  },
+
+  toggleTemplateEditor: () => {
+    set((s) => ({ showTemplateEditor: !s.showTemplateEditor, editingTemplateId: null }));
+  },
+
+  startEditTemplate: (id: string) => {
+    set({ showTemplateEditor: true, editingTemplateId: id });
+  },
+
+  setSelectedTemplate: (id) => {
+    set({ selectedTemplateId: id });
+  },
+
+  setShowCategoryEditor: (open) => {
+    set({ showCategoryEditor: open });
   },
 }));
