@@ -19,6 +19,9 @@ function AssemblyTrack() {
   const reorderAssembly = useAssemblyStore((s) => s.reorderAssembly);
   const removeFromAssembly = useAssemblyStore((s) => s.removeFromAssembly);
   const isLocked = useAssemblyStore((s) => s.isLocked);
+  const selectedTemplateId = useAssemblyStore((s) => s.selectedTemplateId);
+
+  if (selectedTemplateId) return null;
 
   const assemblySnippets = assemblyItems
     .map((id) => snippets[id])

@@ -32,7 +32,7 @@ interface SnippetStore {
   /** 从存储加载数据，首次空数据时注入种子 */
   loadSnippets: () => Promise<void>;
   /** 新增片段并持久化 */
-  addSnippet: (data: Omit<Snippet, 'id' | 'version' | 'updated_at'>) => Promise<void>;
+  addSnippet: (data: Omit<Snippet, 'id' | 'version' | 'updated_at' | 'usage_count'>) => Promise<void>;
   /** 更新片段并持久化 */
   updateSnippet: (id: string, data: Partial<Snippet>) => Promise<void>;
   /** 删除片段并持久化 */
@@ -43,6 +43,8 @@ interface SnippetStore {
   updateCategory: (id: string, name: string, color: string) => Promise<void>;
   /** 删除分类并持久化（同时删除该分类下所有片段） */
   deleteCategory: (id: string) => Promise<void>;
+  /** 使用次数 +1 并持久化（复制/注入时调用） */
+  incrementUsage: (id: string) => Promise<void>;
 }
 
 export const useSnippetStore = create<SnippetStore>((set, get) => ({
@@ -151,5 +153,14 @@ export const useSnippetStore = create<SnippetStore>((set, get) => ({
       snippets: nextSnippets,
       categories: nextCategories,
     });
+  },
+
+  incrementUsage: async (id) => {
+    const { snippets, categories } = get();
+    const existing = snippets[id];
+    if (!existing) return;
+    const nextSnippets = { ...snippets, [id]: { ...existing, usage_count: existing.usage_count + 1 } };
+    set({ snippets: nextSnippets });
+    await storageService.save({ snippets: nextSnippets, categories });
   },
 }));

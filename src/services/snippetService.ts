@@ -34,11 +34,12 @@ export class SnippetService {
   /** 创建新片段（不写入字典，返回新建的片段对象） */
   create(
     snippets: Record<string, Snippet>,
-    data: Omit<Snippet, 'id' | 'version' | 'updated_at'>
+    data: Omit<Snippet, 'id' | 'version' | 'updated_at' | 'usage_count'>
   ): Snippet {
     const now = Date.now();
     const snippet: Snippet = {
       ...data,
+      usage_count: 0,
       id: generateId(),
       version: 1,
       updated_at: now,

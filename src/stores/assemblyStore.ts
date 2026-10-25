@@ -1,63 +1,55 @@
 // ============================================================
 // Prompt Factory - 拼装台 Store
-// 管理拼装台片段顺序、组合文本、注入与复制操作
+// 管理拼装台片段顺序、模板选择、变量填充、合成文本、注入与复制
 // ============================================================
 
-import { create } from 'zustand';
-import { invoke } from '@tauri-apps/api/core';
-import { compose, applyVariables } from '@/services/composeEngine';
-import { useSnippetStore } from './snippetStore';
-import { useUIStore } from './uiStore';
+import { create } from 'zustand'
+import { invoke } from '@tauri-apps/api/core'
+import { compose } from '@/services/composeEngine'
+import { extractVars, fillVars } from '@/services/variableEngine'
+import { useSnippetStore } from './snippetStore'
+import { useTemplateStore } from './templateStore'
+import { useUIStore } from './uiStore'
 
 /** 拼装台 Store 接口 */
 interface AssemblyStore {
-  /** 拼装台中的片段 ID 列表（有序） */
-  assemblyItems: string[];
-  /** 组合后的完整文本（自动合成，派生，含 {{}} 占位符） */
-  composedText: string;
-  /** 变量值字典（运行时状态，不持久化） */
-  variables: Record<string, string>;
-  /** 是否可执行操作（注入/复制） */
-  canAction: boolean;
-  /** 当前模式 */
-  mode: 'assembly' | 'editing';
-  /** 是否因编辑而锁定拼装台 */
-  isLocked: boolean;
-  /** 用户编辑后的文本快照（null=未编辑过） */
-  editedText: string | null;
-  /** 添加片段到拼装台（已存在则忽略） */
-  addToAssembly: (id: string) => void;
-  /** 从拼装台移除片段 */
-  removeFromAssembly: (id: string) => void;
-  /** 重排拼装台（供 dnd-kit onDragEnd 调用） */
-  reorderAssembly: (from: number, to: number) => void;
-  /** 清空拼装台 */
-  clearAssembly: () => void;
-  /** 设置变量值 */
-  setVariable: (name: string, value: string) => void;
-  /** 进入编辑模式 */
-  enterEditing: () => void;
-  /** 退出编辑模式（锁定拼装台） */
-  exitEditing: () => void;
-  /** 重置编辑态（解锁拼装台，保留片段和顺序） */
-  resetEditing: () => void;
-  /** 设置编辑文本（预览框编辑时调用） */
-  setEditedText: (text: string) => void;
-  /** 注入到光标位置 */
-  injectToCursor: () => Promise<void>;
-  /** 复制到剪贴板 */
-  copyToClipboard: () => Promise<void>;
+  assemblyItems: string[]
+  composedText: string
+  canAction: boolean
+  mode: 'assembly' | 'editing'
+  isLocked: boolean
+  editedText: string | null
+  selectedTemplateId: string | null
+  variables: Record<string, string>
+  addToAssembly: (id: string) => void
+  removeFromAssembly: (id: string) => void
+  reorderAssembly: (from: number, to: number) => void
+  clearAssembly: () => void
+  enterEditing: () => void
+  exitEditing: () => void
+  resetEditing: () => void
+  setEditedText: (text: string) => void
+  selectTemplate: (templateId: string) => void
+  setVariable: (name: string, value: string) => void
+  clearTemplateSelection: () => void
+  injectToCursor: () => Promise<void>
+  copyToClipboard: () => Promise<void>
 }
 
-/**
- * 根据当前拼装台和片段库计算 composedText。
- * 从两个 store 的实时状态派生，确保数据一致。
- */
-function computeComposedText(
-  assemblyItems: string[]
-): string {
-  const snippets = useSnippetStore.getState().snippets;
-  return compose(assemblyItems, snippets);
+function computeComposedText(assemblyItems: string[]): string {
+  const snippets = useSnippetStore.getState().snippets
+  return compose(assemblyItems, snippets)
+}
+
+/** 注入/复制成功后，对当前选中的模板或拼装台片段 usage_count +1 */
+function incrementUsageForSelection(state: AssemblyStore): void {
+  if (state.selectedTemplateId) {
+    void useTemplateStore.getState().incrementUsage(state.selectedTemplateId)
+  } else {
+    for (const id of state.assemblyItems) {
+      void useSnippetStore.getState().incrementUsage(id)
+    }
+  }
 }
 
 export const useAssemblyStore = create<AssemblyStore>((set, get) => ({
@@ -68,34 +60,41 @@ export const useAssemblyStore = create<AssemblyStore>((set, get) => ({
   mode: 'assembly',
   isLocked: false,
   editedText: null,
+  selectedTemplateId: null,
+  variables: {},
 
-  addToAssembly: (id) => {
-    if (get().isLocked) return;
-    const { assemblyItems } = get();
-    if (assemblyItems.includes(id)) return;
-    const next = [...assemblyItems, id];
+  addToAssembly: id => {
+    if (get().isLocked) return
+    if (get().selectedTemplateId) {
+      set({ selectedTemplateId: null, variables: {} })
+    }
+    const { assemblyItems } = get()
+    if (assemblyItems.includes(id)) return
+    const next = [...assemblyItems, id]
     set({
       assemblyItems: next,
       composedText: computeComposedText(next),
       variables: {},
-      canAction: next.length > 0,
-    });
+      canAction: next.length > 0
+    })
   },
 
-  removeFromAssembly: (id) => {
-    if (get().isLocked) return;
-    const { assemblyItems } = get();
-    const next = assemblyItems.filter((item) => item !== id);
+  removeFromAssembly: id => {
+    if (get().isLocked) return
+    if (get().selectedTemplateId) return
+    const { assemblyItems } = get()
+    const next = assemblyItems.filter(item => item !== id)
     set({
       assemblyItems: next,
       composedText: computeComposedText(next),
-      canAction: next.length > 0,
-    });
+      canAction: next.length > 0
+    })
   },
 
   reorderAssembly: (from, to) => {
-    if (get().isLocked) return;
-    const { assemblyItems } = get();
+    if (get().isLocked) return
+    if (get().selectedTemplateId) return
+    const { assemblyItems } = get()
     if (
       from < 0 ||
       from >= assemblyItems.length ||
@@ -103,16 +102,16 @@ export const useAssemblyStore = create<AssemblyStore>((set, get) => ({
       to >= assemblyItems.length ||
       from === to
     ) {
-      return;
+      return
     }
-    const next = [...assemblyItems];
-    const [moved] = next.splice(from, 1);
-    next.splice(to, 0, moved);
+    const next = [...assemblyItems]
+    const [moved] = next.splice(from, 1)
+    next.splice(to, 0, moved)
     set({
       assemblyItems: next,
       composedText: computeComposedText(next),
-      canAction: next.length > 0,
-    });
+      canAction: next.length > 0
+    })
   },
 
   clearAssembly: () => {
@@ -124,90 +123,144 @@ export const useAssemblyStore = create<AssemblyStore>((set, get) => ({
       mode: 'assembly',
       isLocked: false,
       editedText: null,
-    });
-  },
-
-  setVariable: (name, value) => {
-    const { variables } = get();
-    set({ variables: { ...variables, [name]: value } });
+      selectedTemplateId: null,
+      variables: {}
+    })
+    useUIStore.getState().setSelectedTemplate(null)
   },
 
   enterEditing: () => {
-    const { composedText, editedText, variables } = get();
+    const { composedText, editedText, variables } = get()
     // 占位符前后各加一个空格，再替换变量值
     // 编辑框中通过空格辨认变量填入部分（textarea 无法富文本高亮）
-    const padded = composedText.replace(
-      /\{\{([\w\u4e00-\u9fff]+)\}\}/g,
-      ' $& '
-    );
-    const resolved = applyVariables(padded, variables);
-    if (!resolved && !editedText) return;
+    const padded = composedText.replace(/\{\{([\w\u4e00-\u9fff]+)\}\}/g, ' $& ')
+    const resolved = applyVariables(padded, variables)
+    if (!resolved && !editedText) return
     set({
       mode: 'editing',
-      editedText: editedText ?? resolved,
-    });
+      editedText: editedText ?? resolved
+    })
   },
 
   exitEditing: () => {
     set({
       mode: 'assembly',
-      isLocked: true,
-    });
+      isLocked: true
+    })
   },
 
   resetEditing: () => {
     set({
       editedText: null,
       isLocked: false,
-      mode: 'assembly',
-    });
+      mode: 'assembly'
+    })
   },
 
-  setEditedText: (text) => {
-    set({ editedText: text });
+  setEditedText: text => {
+    set({ editedText: text })
+  },
+
+  selectTemplate: templateId => {
+    const tpl = useTemplateStore.getState().templates[templateId]
+    if (!tpl) return
+    const vars: Record<string, string> = {}
+    for (const name of extractVars(tpl.content)) {
+      vars[name] = ''
+    }
+    set({
+      selectedTemplateId: templateId,
+      variables: vars,
+      assemblyItems: [],
+      composedText: tpl.content,
+      canAction: true,
+      mode: 'assembly',
+      isLocked: false,
+      editedText: null
+    })
+    useUIStore.getState().setSelectedTemplate(templateId)
+  },
+
+  setVariable: (name, value) => {
+    const { variables, selectedTemplateId } = get()
+    if (!selectedTemplateId) return
+    const tpl = useTemplateStore.getState().templates[selectedTemplateId]
+    if (!tpl) return
+    const nextVars = { ...variables, [name]: value }
+    set({
+      variables: nextVars,
+      composedText: fillVars(tpl.content, nextVars)
+    })
+  },
+
+  clearTemplateSelection: () => {
+    set({
+      selectedTemplateId: null,
+      variables: {},
+      composedText: '',
+      canAction: false,
+      mode: 'assembly',
+      isLocked: false,
+      editedText: null
+    })
+    useUIStore.getState().setSelectedTemplate(null)
   },
 
   injectToCursor: async () => {
-    const { editedText, composedText, variables } = get();
-    const text = editedText ?? applyVariables(composedText, variables);
-    if (!text) return;
+    const { editedText, composedText, variables } = get()
+    const text = editedText ?? applyVariables(composedText, variables)
+    if (!text) return
     try {
-      const ok = await invoke<boolean>('inject_text', { text });
+      const ok = await invoke<boolean>('inject_text', { text })
       if (ok) {
-        useUIStore.getState().hideOverlay();
+        useUIStore.getState().hideOverlay()
+        incrementUsageForSelection(get())
       } else {
-        useUIStore.getState().showToast('注入失败', 'info');
+        useUIStore.getState().showToast('注入失败', 'info')
       }
     } catch {
-      useUIStore.getState().showToast('注入不可用', 'info');
+      useUIStore.getState().showToast('注入不可用', 'info')
     }
   },
 
   copyToClipboard: async () => {
-    const { editedText, composedText, variables } = get();
-    const text = editedText ?? applyVariables(composedText, variables);
-    if (!text) return;
+    const { editedText, composedText, variables } = get()
+    const text = editedText ?? applyVariables(composedText, variables)
+    if (!text) return
     try {
-      const ok = await invoke<boolean>('copy_to_clipboard', { text });
+      const ok = await invoke<boolean>('copy_to_clipboard', { text })
       if (ok) {
-        useUIStore.getState().showToast('已复制到剪贴板', 'success');
+        useUIStore.getState().showToast('已复制到剪贴板', 'success')
+        incrementUsageForSelection(get())
       } else {
-        useUIStore.getState().showToast('复制失败', 'info');
+        useUIStore.getState().showToast('复制失败', 'info')
       }
     } catch {
-      useUIStore.getState().showToast('复制不可用', 'info');
+      useUIStore.getState().showToast('复制不可用', 'info')
     }
-  },
-}));
+  }
+}))
 
 // ---- 跨 Store 同步 ----
-// 当 snippetStore 中的 snippets 发生变化时（如编辑片段内容），
-// 重新计算 composedText 以保持实时一致。
-useSnippetStore.subscribe((state) => {
-  const assemblyState = useAssemblyStore.getState();
-  if (assemblyState.assemblyItems.length === 0) return;
-  const newComposed = compose(assemblyState.assemblyItems, state.snippets);
+// 拼装模式：snippetStore 变化时重算 composedText
+useSnippetStore.subscribe(state => {
+  const assemblyState = useAssemblyStore.getState()
+  if (assemblyState.selectedTemplateId) return
+  if (assemblyState.assemblyItems.length === 0) return
+  const newComposed = compose(assemblyState.assemblyItems, state.snippets)
   if (newComposed !== assemblyState.composedText) {
-    useAssemblyStore.setState({ composedText: newComposed });
+    useAssemblyStore.setState({ composedText: newComposed })
   }
-});
+})
+
+// 模板模式：templateStore 变化时重算 composedText（不触碰 editedText）
+useTemplateStore.subscribe(state => {
+  const assemblyState = useAssemblyStore.getState()
+  if (!assemblyState.selectedTemplateId) return
+  const tpl = state.templates[assemblyState.selectedTemplateId]
+  if (!tpl) return
+  const newComposed = fillVars(tpl.content, assemblyState.variables)
+  if (newComposed !== assemblyState.composedText) {
+    useAssemblyStore.setState({ composedText: newComposed })
+  }
+})

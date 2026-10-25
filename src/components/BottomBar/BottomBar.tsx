@@ -5,7 +5,7 @@ import styles from './BottomBar.module.css';
 /**
  * 底部按钮区 —— 高 56, 填充 var(--bg-panel)。
  * 拼装模式：[✎ 编辑] + [复制] + [注入]
- * 编辑模式：[✓ 完成] + [复制] + [注入]
+ * 编辑模式：[✓ 完成] + [取消] + [复制] + [注入]
  * 锁定模式：[✎ 编辑] + [↺ 重置] + [复制] + [注入]
  * canAction 为 false 时复制/注入按钮禁用。
  */
@@ -28,13 +28,22 @@ function BottomBar() {
   return (
     <div className={styles.bar}>
       {isEditing ? (
-        <button
-          type="button"
-          className={`${styles.btn} ${styles.btnDone}`}
-          onClick={exitEditing}
-        >
-          ✓ 完成
-        </button>
+        <>
+          <button
+            type="button"
+            className={`${styles.btn} ${styles.btnDone}`}
+            onClick={exitEditing}
+          >
+            ✓ 完成
+          </button>
+          <button
+            type="button"
+            className={`${styles.btn} ${styles.btnCancel}`}
+            onClick={resetEditing}
+          >
+            取消
+          </button>
+        </>
       ) : (
         <button
           type="button"
