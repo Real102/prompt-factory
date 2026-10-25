@@ -99,3 +99,17 @@
   background: rgba(255, 122, 61, 0.1);
   border-color: #ff7a3d;
 }
+
+.btnCancel {
+  background: var(--bg-panel2);
+  border: 1px solid var(--stroke);
+  color: var(--text-dim2);
+  padding: 0 16px;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.btnCancel:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
