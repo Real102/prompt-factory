@@ -2,13 +2,39 @@ export type Category = string;
 
 export interface Snippet {
   id: string;
+  category: Category;
   name: string;
   content: string;
-  category: Category;
-  /** 版本号，每次更新自增 */
   version: number;
-  /** 最后更新时间戳（ms） */
   updated_at: number;
+  /** 使用次数，复制到剪贴板/注入时 +1 */
+  usage_count: number;
+}
+
+/** 模板（整段型）：整段文本，可含 {{变量}} */
+export interface Template {
+  id: string;
+  name: string;
+  /** 可选描述，不填默认用 content 作为描述 */
+  description?: string;
+  /** 整段文本，可含 {{变量}} */
+  content: string;
+  /** 可选标签，最多5个 */
+  tags?: string[];
+  /** 使用次数，复制到剪贴板/注入时 +1 */
+  usage_count: number;
+}
+
+export interface CategoryMeta {
+  id: Category;
+  name: string;
+  color: string;
+}
+
+export interface AppData {
+  snippets: Record<string, Snippet>;
+  templates: Record<string, Template>;
+  categories: CategoryMeta[];
 }
 
 export type ToastVariant = 'copy' | 'inject';
@@ -17,19 +43,6 @@ export interface ToastState {
   visible: boolean;
   message: string;
   variant: ToastVariant;
-}
-
-/** 分类元信息 */
-export interface CategoryMeta {
-  id: Category;
-  name: string;
-  color: string;
-}
-
-/** 应用持久化数据结构 */
-export interface AppData {
-  snippets: Record<string, Snippet>;
-  categories: CategoryMeta[];
 }
 
 /** 分类 → CSS 变量颜色映射（种子分类默认颜色） */
