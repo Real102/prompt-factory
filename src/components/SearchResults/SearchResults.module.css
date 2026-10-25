@@ -176,3 +176,42 @@
   cursor: not-allowed;
   opacity: 0.5;
 }
+
+.tplRow {
+  border-left: 2px solid var(--accent);
+}
+
+.tplIcon {
+  flex-shrink: 0;
+  font-size: 11px;
+}
+
+.tag {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  border: 1px solid;
+  border-radius: 3px;
+  padding: 1px 4px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.varCount {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: #ff7a3d;
+  border: 1px solid #ff7a3d;
+  border-radius: 3px;
+  padding: 0 4px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.usageCount {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-dim);
+  margin-left: auto;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
