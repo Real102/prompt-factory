@@ -5,7 +5,6 @@
 
 import { invoke } from '@tauri-apps/api/core';
 import type { AppData } from '@/types';
-// 复用子 Agent 2 提供的种子数据
 import { getSeedData as getSeedDataFromData } from '@/data/seedSnippets';
 
 /** 重新导出 getSeedData，供 snippetStore 使用 */
@@ -14,8 +13,8 @@ export { getSeedDataFromData as getSeedData };
 /** localStorage 键名（浏览器开发环境回退用） */
 const STORAGE_KEY = 'prompt-factory-data';
 
-/** 校验 AppData 结构完整性 */
-function isValidData(data: unknown): data is AppData {
+/** 校验 AppData 结构完整性（宽松：旧数据可能缺 templates/usage_count） */
+function isValidData(data: unknown): data is Partial<AppData> & Record<string, unknown> {
   if (typeof data !== 'object' || data === null) return false;
   const obj = data as Record<string, unknown>;
   return (
@@ -23,6 +22,22 @@ function isValidData(data: unknown): data is AppData {
     typeof obj.snippets === 'object' &&
     Array.isArray(obj.categories)
   );
+}
+
+/** 数据迁移：补齐旧数据缺失的 templates / usage_count 字段 */
+function migrateData(data: Partial<AppData>): AppData {
+  const snippets = data.snippets ?? {};
+  const migratedSnippets = Object.fromEntries(
+    Object.entries(snippets).map(([id, s]) => [
+      id,
+      { ...s, usage_count: s.usage_count ?? 0 },
+    ])
+  );
+  return {
+    snippets: migratedSnippets,
+    templates: data.templates ?? {},
+    categories: data.categories ?? [],
+  };
 }
 
 /**
@@ -33,32 +48,45 @@ function isValidData(data: unknown): data is AppData {
  * 自动回退到 localStorage。
  */
 export class StorageService {
+  /** 内存缓存：save 时合并各 store 的部分数据 */
+  private cached: AppData | null = null;
+
   /** 加载数据；文件不存在或为空时返回种子数据 */
   async load(): Promise<AppData> {
     try {
       const raw = await invoke<string>('read_data_file');
       if (!raw || raw.trim() === '') {
-        return getSeedDataFromData();
+        const seed = getSeedDataFromData();
+        this.cached = seed;
+        return seed;
       }
       const parsed = JSON.parse(raw);
       if (!isValidData(parsed)) {
-        return getSeedDataFromData();
+        const seed = getSeedDataFromData();
+        this.cached = seed;
+        return seed;
       }
-      return parsed;
+      const migrated = migrateData(parsed);
+      this.cached = migrated;
+      return migrated;
     } catch {
-      // invoke 不可用（浏览器环境），回退 localStorage
       return this.loadFromLocal();
     }
   }
 
-  /** 保存数据到本地文件 */
-  async save(data: AppData): Promise<void> {
-    const content = JSON.stringify(data, null, 2);
+  /** 保存数据到本地文件（接收 Partial，与缓存合并，避免多 store 循环依赖） */
+  async save(data: Partial<AppData>): Promise<void> {
+    const merged: AppData = {
+      snippets: data.snippets ?? this.cached?.snippets ?? {},
+      templates: data.templates ?? this.cached?.templates ?? {},
+      categories: data.categories ?? this.cached?.categories ?? [],
+    };
+    this.cached = merged;
+    const content = JSON.stringify(merged, null, 2);
     try {
       await invoke('write_data_file', { content });
     } catch {
-      // invoke 不可用，回退 localStorage
-      this.saveToLocal(data);
+      this.saveToLocal(merged);
     }
   }
 
@@ -66,14 +94,24 @@ export class StorageService {
   private loadFromLocal(): AppData {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return getSeedDataFromData();
+      if (!raw) {
+        const seed = getSeedDataFromData();
+        this.cached = seed;
+        return seed;
+      }
       const parsed = JSON.parse(raw);
       if (!isValidData(parsed)) {
-        return getSeedDataFromData();
+        const seed = getSeedDataFromData();
+        this.cached = seed;
+        return seed;
       }
-      return parsed;
+      const migrated = migrateData(parsed);
+      this.cached = migrated;
+      return migrated;
     } catch {
-      return getSeedDataFromData();
+      const seed = getSeedDataFromData();
+      this.cached = seed;
+      return seed;
     }
   }
 
