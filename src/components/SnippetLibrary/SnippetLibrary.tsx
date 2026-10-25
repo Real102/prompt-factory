@@ -16,12 +16,12 @@ function SnippetLibrary() {
   const addToAssembly = useAssemblyStore((s) => s.addToAssembly);
   const removeFromAssembly = useAssemblyStore((s) => s.removeFromAssembly);
   const isLocked = useAssemblyStore((s) => s.isLocked);
-  const toggleSnippetEditor = useUIStore((s) => s.toggleSnippetEditor);
   const startEditSnippet = useUIStore((s) => s.startEditSnippet);
+  const showCategoryEditor = useUIStore((s) => s.showCategoryEditor);
+  const setShowCategoryEditor = useUIStore((s) => s.setShowCategoryEditor);
   const deleteSnippet = useSnippetStore((s) => s.deleteSnippet);
 
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
-  const [newCatMode, setNewCatMode] = useState(false);
   const [newCatName, setNewCatName] = useState('');
   const [newCatColor, setNewCatColor] = useState(CATEGORY_COLOR_POOL[0]);
   const [editingCatId, setEditingCatId] = useState<string | null>(null);
@@ -77,7 +77,7 @@ function SnippetLibrary() {
     void addCategory(newCatName.trim(), newCatColor);
     setNewCatName('');
     setNewCatColor(CATEGORY_COLOR_POOL[0]);
-    setNewCatMode(false);
+    setShowCategoryEditor(false);
   }
 
   function startEditCategory(cat: CategoryMeta) {
@@ -104,19 +104,8 @@ function SnippetLibrary() {
 
   return (
     <div className={`${styles.library} ${isLocked ? styles.locked : ''}`}>
-      <div className={styles.header}>
-        <span className={styles.title}>SNIPPET LIBRARY · 片段库</span>
-        <div className={styles.headerBtns}>
-          <button type="button" className={styles.addBtn} onClick={() => setNewCatMode(true)}>
-            + 分类
-          </button>
-          <button type="button" className={styles.addBtn} onClick={toggleSnippetEditor}>
-            + 片段
-          </button>
-        </div>
-      </div>
       <div className={styles.list}>
-        {newCatMode && (
+        {showCategoryEditor && (
           <div className={styles.catEditRow}>
             <input
               className={styles.catNameInput}
@@ -138,7 +127,7 @@ function SnippetLibrary() {
             <button
               type="button"
               className={styles.catCancelBtn}
-              onClick={() => { setNewCatMode(false); setNewCatName(''); }}
+              onClick={() => { setShowCategoryEditor(false); setNewCatName(''); }}
             >
               ✕
             </button>
@@ -326,7 +315,7 @@ function SnippetLibrary() {
             </div>
           );
         })}
-        {categories.length === 0 && !newCatMode && (
+        {categories.length === 0 && !showCategoryEditor && (
           <div className={styles.emptyCat}>点击「+ 分类」创建第一个分类</div>
         )}
       </div>
