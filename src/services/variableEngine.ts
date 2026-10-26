@@ -33,3 +33,32 @@ export function fillVars(text: string, vars: Record<string, string>): string {
     return vars[name] ?? `{{${raw}}}`;
   });
 }
+
+/** splitByVariables 返回的分段类型 */
+export interface TextSegment {
+  type: 'text' | 'var';
+  content: string;
+}
+
+/**
+ * 将文本按 {{变量名}} 占位符切分为有序分段。
+ * 用于预览区分段渲染：var 段可着色高亮，text 段为普通文本。
+ * 占位符在 composedText 中永远存在（变量值不回写），故 DOM 结构稳定。
+ */
+export function splitByVariables(text: string): TextSegment[] {
+  const result: TextSegment[] = [];
+  const pattern = /\{\{([^{}]+)\}\}/g;
+  let lastIndex = 0;
+  let m: RegExpExecArray | null;
+  while ((m = pattern.exec(text)) !== null) {
+    if (m.index > lastIndex) {
+      result.push({ type: 'text', content: text.slice(lastIndex, m.index) });
+    }
+    result.push({ type: 'var', content: m[0] });
+    lastIndex = m.index + m[0].length;
+  }
+  if (lastIndex < text.length) {
+    result.push({ type: 'text', content: text.slice(lastIndex) });
+  }
+  return result;
+}
