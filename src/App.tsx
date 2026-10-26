@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { useAssemblyStore } from '@/stores/assemblyStore'
 import { useSnippetStore } from '@/stores/snippetStore'
 import { useTemplateStore } from '@/stores/templateStore'
 import { useUIStore } from '@/stores/uiStore'
@@ -8,6 +9,7 @@ import SearchBar from './components/SearchBar/SearchBar'
 import SearchResults from './components/SearchResults/SearchResults'
 import AssemblyTrack from './components/AssemblyTrack/AssemblyTrack'
 import VariableArea from './components/VariableArea/VariableArea'
+import VariableSlots from './components/VariableSlots/VariableSlots'
 import PreviewPanel from './components/PreviewPanel/PreviewPanel'
 import BottomBar from './components/BottomBar/BottomBar'
 import TabBar from './components/TabBar/TabBar'
@@ -25,6 +27,7 @@ function App() {
   const showTemplateEditor = useUIStore(s => s.showTemplateEditor)
   const editingTemplateId = useUIStore(s => s.editingTemplateId)
   const activeTab = useUIStore(s => s.activeTab)
+  const selectedTemplateId = useAssemblyStore(s => s.selectedTemplateId)
 
   useGlobalShortcut()
 
@@ -38,7 +41,7 @@ function App() {
       <SearchBar />
       <SearchResults />
       <AssemblyTrack />
-      <VariableArea />
+      {selectedTemplateId ? <VariableArea /> : <VariableSlots />}
       <PreviewPanel />
       <BottomBar />
       {showTemplateEditor ? (

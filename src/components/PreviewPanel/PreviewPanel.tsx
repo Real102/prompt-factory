@@ -1,6 +1,9 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useAssemblyStore } from '@/stores/assemblyStore'
+import { useSnippetStore } from '@/stores/snippetStore'
+import { getTagColor } from '@/stores/templateStore'
 import { useUIStore } from '@/stores/uiStore'
+import { splitByVariables, extractVariableOwners, applyVariables } from '@/services/composeEngine'
 import styles from './PreviewPanel.module.css'
 
 /**
@@ -16,6 +19,10 @@ function PreviewPanel() {
   const editedText = useAssemblyStore(s => s.editedText)
   const setEditedText = useAssemblyStore(s => s.setEditedText)
   const resetEditing = useAssemblyStore(s => s.resetEditing)
+  const assemblyItems = useAssemblyStore(s => s.assemblyItems)
+  const selectedTemplateId = useAssemblyStore(s => s.selectedTemplateId)
+  const snippets = useSnippetStore(s => s.snippets)
+  const categories = useSnippetStore(s => s.categories)
 
   useEffect(() => {
     if (mode !== 'editing') return
@@ -72,7 +79,7 @@ function PreviewPanel() {
                   <span
                     key={i}
                     className={styles.varHighlight}
-                    style={{ color: varOwners.get(name) || '#c9f73d' }}
+                    style={{ color: selectedTemplateId ? getTagColor(name) : (varOwners.get(name) || '#c9f73d') }}
                   >
                     {value || seg.content}
                   </span>

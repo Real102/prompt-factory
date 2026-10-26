@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useAssemblyStore } from '@/stores/assemblyStore';
+import { getTagColor } from '@/stores/templateStore';
 import styles from './VariableArea.module.css';
 
 function VariableArea() {
@@ -27,7 +28,7 @@ function VariableArea() {
       <div className={styles.list}>
         {varEntries.map(([name, value], index) => (
           <div className={styles.varItem} key={name}>
-            <span className={styles.varName}>{`{{${name}}}`}</span>
+            <span className={styles.varName} style={{ color: getTagColor(name) }}>{`{{${name}}}`}</span>
             <span className={styles.varEquals}>=</span>
             <input
               ref={index === 0 ? firstInputRef : undefined}
