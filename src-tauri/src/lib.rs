@@ -35,6 +35,8 @@ pub fn run() {
             commands::write_data_file,
             commands::export_data,
             commands::import_data,
+            commands::get_ui_scale,
+            commands::set_ui_scale,
         ])
         .setup(|app| {
             #[cfg(debug_assertions)]

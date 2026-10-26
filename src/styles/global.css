@@ -11,6 +11,10 @@ html, body, #root {
   background: transparent;
 }
 
+#root {
+  zoom: var(--ui-scale);
+}
+
 body {
   background: transparent;
   font-family: var(--font-mono);

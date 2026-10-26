@@ -4,6 +4,7 @@ import { useSnippetStore } from '@/stores/snippetStore'
 import { useTemplateStore } from '@/stores/templateStore'
 import { useUIStore } from '@/stores/uiStore'
 import { useGlobalShortcut } from '@/hooks/useGlobalShortcut'
+import { useUiScale } from '@/hooks/useUiScale'
 import Overlay from './components/Overlay/Overlay'
 import SearchBar from './components/SearchBar/SearchBar'
 import SearchResults from './components/SearchResults/SearchResults'
@@ -30,6 +31,7 @@ function App() {
   const selectedTemplateId = useAssemblyStore(s => s.selectedTemplateId)
 
   useGlobalShortcut()
+  useUiScale()
 
   useEffect(() => {
     void loadSnippets()
