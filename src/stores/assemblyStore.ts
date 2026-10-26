@@ -61,12 +61,12 @@ export const useAssemblyStore = create<AssemblyStore>((set, get) => ({
   isLocked: false,
   editedText: null,
   selectedTemplateId: null,
-  variables: {},
 
   addToAssembly: id => {
     if (get().isLocked) return
     if (get().selectedTemplateId) {
       set({ selectedTemplateId: null, variables: {} })
+      useUIStore.getState().setSelectedTemplate(null)
     }
     const { assemblyItems } = get()
     if (assemblyItems.includes(id)) return
@@ -124,7 +124,6 @@ export const useAssemblyStore = create<AssemblyStore>((set, get) => ({
       isLocked: false,
       editedText: null,
       selectedTemplateId: null,
-      variables: {}
     })
     useUIStore.getState().setSelectedTemplate(null)
   },
@@ -133,8 +132,8 @@ export const useAssemblyStore = create<AssemblyStore>((set, get) => ({
     const { composedText, editedText, variables } = get()
     // 占位符前后各加一个空格，再替换变量值
     // 编辑框中通过空格辨认变量填入部分（textarea 无法富文本高亮）
-    const padded = composedText.replace(/\{\{([\w\u4e00-\u9fff]+)\}\}/g, ' $& ')
-    const resolved = applyVariables(padded, variables)
+    const padded = composedText.replace(/\{\{([^{}]+)\}\}/g, ' $& ')
+    const resolved = fillVars(padded, variables)
     if (!resolved && !editedText) return
     set({
       mode: 'editing',
@@ -183,14 +182,19 @@ export const useAssemblyStore = create<AssemblyStore>((set, get) => ({
 
   setVariable: (name, value) => {
     const { variables, selectedTemplateId } = get()
-    if (!selectedTemplateId) return
-    const tpl = useTemplateStore.getState().templates[selectedTemplateId]
-    if (!tpl) return
     const nextVars = { ...variables, [name]: value }
-    set({
-      variables: nextVars,
-      composedText: fillVars(tpl.content, nextVars)
-    })
+    if (selectedTemplateId) {
+      const tpl = useTemplateStore.getState().templates[selectedTemplateId]
+      if (!tpl) return
+      set({
+        variables: nextVars,
+        composedText: fillVars(tpl.content, nextVars)
+      })
+    } else {
+      // 拼装模式：composedText 保持占位符，仅更新 variables
+      // 预览区渲染时通过 variables[name] 显示已填值
+      set({ variables: nextVars })
+    }
   },
 
   clearTemplateSelection: () => {
@@ -208,7 +212,7 @@ export const useAssemblyStore = create<AssemblyStore>((set, get) => ({
 
   injectToCursor: async () => {
     const { editedText, composedText, variables } = get()
-    const text = editedText ?? applyVariables(composedText, variables)
+    const text = editedText ?? fillVars(composedText, variables)
     if (!text) return
     try {
       const ok = await invoke<boolean>('inject_text', { text })
@@ -225,7 +229,7 @@ export const useAssemblyStore = create<AssemblyStore>((set, get) => ({
 
   copyToClipboard: async () => {
     const { editedText, composedText, variables } = get()
-    const text = editedText ?? applyVariables(composedText, variables)
+    const text = editedText ?? fillVars(composedText, variables)
     if (!text) return
     try {
       const ok = await invoke<boolean>('copy_to_clipboard', { text })
