@@ -211,7 +211,7 @@ function SearchResults() {
                   {tagList.slice(0, 2).map((tag) => {
                     const color = getTagColor(tag);
                     return (
-                      <span key={tag} className={styles.tag} style={{ borderColor: color, color }}>
+                      <span key={tag} className={styles.tag} style={{ background: `color-mix(in srgb, ${color} 15%, transparent)`, color }}>
                         {tag}
                       </span>
                     );
@@ -235,7 +235,7 @@ function SearchResults() {
                 >
                   <span className={styles.dot} style={{ background: color }} />
                   <span className={styles.name}>{highlight(s.name)}</span>
-                  <span className={styles.cat}>{getCatName(s.category)}</span>
+                  <span className={styles.cat} style={{ background: `color-mix(in srgb, ${color} 15%, transparent)`, color }}>{getCatName(s.category)}</span>
                   <span className={styles.preview}>{s.content}</span>
                   <span className={styles.check}>✓</span>
                 </div>
