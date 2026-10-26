@@ -22,7 +22,7 @@ function Overlay({ children, visible = true }: OverlayProps) {
     let lastHeight = 0;
 
     const updateSize = async (height: number) => {
-      const finalHeight = Math.max(height, 400);
+      const finalHeight = Math.max(height, 600);
       if (finalHeight === lastHeight) return;
       lastHeight = finalHeight;
       try {

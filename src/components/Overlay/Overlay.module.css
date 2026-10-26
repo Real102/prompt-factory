@@ -1,6 +1,7 @@
 .overlay {
   position: relative;
   width: 680px;
+  min-height: 600px;
   border-radius: 12px;
   background: var(--bg-overlay);
   border: 1px solid var(--accent);
