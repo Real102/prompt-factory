@@ -1,5 +1,6 @@
 import { useUIStore } from '@/stores/uiStore';
 import { useWindowDrag } from '@/hooks/useWindowDrag';
+import { SHORTCUT_HINT } from '@/services/platform';
 import styles from './SearchBar.module.css';
 
 function SearchBar() {
@@ -42,7 +43,7 @@ function SearchBar() {
             }}
           />
         </div>
-        <span className={styles.hint}>Ctrl Space</span>
+        <span className={styles.hint}>{SHORTCUT_HINT}</span>
       </div>
     </div>
   );

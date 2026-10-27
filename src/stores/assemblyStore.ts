@@ -7,6 +7,7 @@ import { create } from 'zustand'
 import { invoke } from '@tauri-apps/api/core'
 import { compose } from '@/services/composeEngine'
 import { extractVars, fillVars } from '@/services/variableEngine'
+import { isMac } from '@/services/platform'
 import { useSnippetStore } from './snippetStore'
 import { useTemplateStore } from './templateStore'
 import { useUIStore } from './uiStore'
@@ -220,10 +221,20 @@ export const useAssemblyStore = create<AssemblyStore>((set, get) => ({
         useUIStore.getState().hideOverlay()
         incrementUsageForSelection(get())
       } else {
-        useUIStore.getState().showToast('注入失败', 'info')
+        useUIStore.getState().showToast(
+          isMac
+            ? '注入失败，请在系统设置→隐私与安全→辅助功能中授权本应用'
+            : '注入失败，请检查目标窗口焦点',
+          'info'
+        )
       }
     } catch {
-      useUIStore.getState().showToast('注入不可用', 'info')
+      useUIStore.getState().showToast(
+        isMac
+          ? '注入不可用，请在系统设置→隐私与安全→辅助功能中授权本应用'
+          : '注入不可用，请检查目标窗口焦点',
+        'info'
+      )
     }
   },
 

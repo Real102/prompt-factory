@@ -1,7 +1,7 @@
 // ============================================================
 // Prompt Factory - 全局快捷键 Hook
 // 监听 Escape（收起浮层）和 Enter（注入到光标）
-// 注意：Ctrl+Space 全局唤起由 Rust 侧 tauri-plugin-global-shortcut 处理
+// 注意：全局唤起快捷键由 Rust 侧 tauri-plugin-global-shortcut 处理，
 // ============================================================
 
 import { useEffect } from 'react';

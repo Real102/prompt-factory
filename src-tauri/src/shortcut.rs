@@ -2,10 +2,16 @@ use tauri::Manager;
 use tauri_plugin_global_shortcut::{GlobalShortcutExt, ShortcutState};
 
 /// 注册全局快捷键唤起浮层
-/// Windows: Ctrl+Space
+/// Windows/Linux: Ctrl+Space
+/// macOS: Option+Space（避免与 Spotlight 的 Cmd+Space 冲突）
 pub fn register_shortcut(app: &tauri::AppHandle) -> tauri::Result<()> {
+    let shortcut = if cfg!(target_os = "macos") {
+        "alt+space"
+    } else {
+        "ctrl+space"
+    };
     app.global_shortcut()
-        .on_shortcut("ctrl+space", move |app, _shortcut, event| {
+        .on_shortcut(shortcut, move |app, _shortcut, event| {
             if event.state != ShortcutState::Pressed {
                 return;
             }
