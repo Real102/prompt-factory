@@ -13,10 +13,11 @@ pub fn run() {
             if let Some(window) = app.get_webview_window("main") {
                 let visible = window.is_visible().unwrap_or(false);
                 if !visible {
-                    let _ = window.center();
-                    let _ = window.show();
+                    // 统一走 toggle_overlay_impl：center + show + set_size(按 scale)
+                    crate::window::toggle_overlay_impl(window);
+                } else {
+                    let _ = window.set_focus();
                 }
-                let _ = window.set_focus();
             }
         }))
         .plugin(tauri_plugin_clipboard_manager::init())

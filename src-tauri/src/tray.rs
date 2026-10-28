@@ -55,8 +55,15 @@ pub fn create_tray(app: &tauri::AppHandle) -> tauri::Result<()> {
 
     let autostart_handler = autostart_item.clone();
 
+    // 托盘 tooltip 按平台显示唤起快捷键
+    let tooltip_text = if cfg!(target_os = "macos") {
+        "Prompt Factory · Option+Space 唤起"
+    } else {
+        "Prompt Factory · Ctrl+Space 唤起"
+    };
+
     TrayIconBuilder::with_id("main-tray")
-        .tooltip("Prompt Factory · Ctrl+Space 唤起")
+        .tooltip(tooltip_text)
         .icon(icon)
         .menu(&menu)
         .on_tray_icon_event(|tray, event| {
@@ -99,13 +106,14 @@ pub fn create_tray(app: &tauri::AppHandle) -> tauri::Result<()> {
                     }
                 }
                 "toggle_autostart" => {
-                    let target = autostart_handler.is_checked().unwrap_or(false);
-                    let op_result = if target {
-                        app.autolaunch().enable()
-                    } else {
+                    // 以 autolaunch 实际启用状态为准，不依赖 CheckMenuItem 的翻转时序
+                    let current = app.autolaunch().is_enabled().unwrap_or(false);
+                    let result = if current {
                         app.autolaunch().disable()
+                    } else {
+                        app.autolaunch().enable()
                     };
-                    let final_state = if op_result.is_err() { !target } else { target };
+                    let final_state = if result.is_err() { current } else { !current };
                     let _ = autostart_handler.set_checked(final_state);
                 }
                 "quit" => {
