@@ -17,7 +17,7 @@
   outline: none;
   padding: 0 8px;
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: var(--fs-base);
   color: var(--text-main);
 }
 
@@ -38,7 +38,7 @@
   padding: 6px 8px;
   resize: none;
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: var(--fs-base);
   color: var(--text-main);
   line-height: 1.4;
 }
@@ -65,7 +65,7 @@
   background: var(--accent);
   color: var(--bg-overlay);
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: var(--fs-base);
   font-weight: 700;
   cursor: pointer;
 }
@@ -82,7 +82,7 @@
   border: 1px solid var(--stroke);
   color: var(--text-main);
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: var(--fs-base);
   cursor: pointer;
 }
 

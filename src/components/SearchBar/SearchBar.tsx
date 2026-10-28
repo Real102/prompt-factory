@@ -12,14 +12,10 @@ function SearchBar() {
   return (
     <div className={styles.bar}>
       <div className={styles.brandRow} onMouseDown={onMouseDown}>
-        <span className={styles.logoGroup}>
-          <span className={styles.pf}>PF</span>
-          <span className={styles.full}>Prompt-Factory</span>
-        </span>
-        <span className={styles.sepSlogan}>
-          <span className={styles.sep} />
-          <span className={styles.slogan}>片段成串，注入即用</span>
-        </span>
+        <span className={styles.pf}>PF</span>
+        <span className={styles.full}>Prompt-Factory</span>
+        <span className={styles.sep} />
+        <span className={styles.slogan}>片段成串，注入即用</span>
       </div>
       <div className={styles.searchRow} data-search-row>
         <div className={styles.left}>

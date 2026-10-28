@@ -16,5 +16,9 @@
   --desktop:      #1a1a1a;
   --font-mono:    'JetBrains Mono', monospace;
   --font-sans:    'IBM Plex Sans', sans-serif;
+  --fs-xs:        10px;
+  --fs-base:      12px;
+  --fs-md:        13px;
+  --fs-lg:        16px;
   --ui-scale:     1;
 }

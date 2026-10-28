@@ -38,7 +38,7 @@
 
 .count {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--fs-xs);
   color: var(--text-dim2);
 }
 
@@ -49,7 +49,7 @@
 
 .kbd {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--fs-xs);
   color: var(--text-dim);
   display: flex;
   gap: 10px;
@@ -60,7 +60,7 @@
   border: 1px solid var(--stroke);
   border-radius: 3px;
   padding: 0 4px;
-  font-size: 8px;
+  font-size: var(--fs-xs);
   font-family: var(--font-mono);
 }
 
@@ -111,7 +111,7 @@
 
 .name {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--fs-base);
   color: var(--text-main);
   white-space: nowrap;
   flex-shrink: 0;
@@ -127,7 +127,7 @@
   align-items: center;
   height: 18px;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--fs-xs);
   color: var(--text-dim2);
   border: 1px solid var(--stroke);
   border-radius: 3px;
@@ -141,7 +141,7 @@
   flex: 1;
   min-width: 0;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--fs-xs);
   color: var(--text-dim);
   white-space: nowrap;
   overflow: hidden;
@@ -157,7 +157,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 9px;
+  font-size: var(--fs-xs);
   color: transparent;
   transition: all 0.12s ease;
 }
@@ -172,7 +172,7 @@
   padding: 24px 16px;
   text-align: center;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--fs-base);
   color: var(--text-dim);
 }
 
@@ -187,7 +187,7 @@
 
 .tplIcon {
   flex-shrink: 0;
-  font-size: 11px;
+  font-size: var(--fs-base);
 }
 
 .tag {
@@ -195,7 +195,7 @@
   align-items: center;
   height: 18px;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--fs-xs);
   border: 1px solid var(--stroke);
   border-radius: 3px;
   padding: 0 6px;
@@ -206,7 +206,7 @@
 
 .varCount {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--fs-xs);
   color: #ff7a3d;
   border: 1px solid #ff7a3d;
   border-radius: 3px;
@@ -217,7 +217,7 @@
 
 .usageCount {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--fs-xs);
   color: var(--text-dim);
   margin-left: auto;
   flex-shrink: 0;

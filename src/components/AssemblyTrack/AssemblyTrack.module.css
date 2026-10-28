@@ -11,7 +11,7 @@
 
 .label {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--fs-xs);
   color: var(--text-dim);
   margin-bottom: 6px;
   flex-shrink: 0;
@@ -32,7 +32,7 @@
   justify-content: center;
   width: 100%;
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: var(--fs-base);
   color: var(--text-dim);
 }
 
@@ -72,7 +72,7 @@
 
 .text {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--fs-base);
   color: var(--text-main);
   white-space: nowrap;
 }
@@ -87,7 +87,7 @@
   border: none;
   background: transparent;
   color: var(--text-dim);
-  font-size: 14px;
+  font-size: var(--fs-md);
   line-height: 1;
   cursor: pointer;
   display: flex;

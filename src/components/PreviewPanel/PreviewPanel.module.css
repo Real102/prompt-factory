@@ -18,13 +18,13 @@
   top: 8px;
   right: 12px;
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--fs-xs);
   color: var(--text-dim);
 }
 
 .content {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: var(--fs-base);
   line-height: 1.6;
   color: var(--text-main);
   white-space: pre-wrap;
@@ -41,7 +41,7 @@
   align-items: center;
   justify-content: center;
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: var(--fs-base);
   color: var(--text-dim);
 }
 
@@ -52,7 +52,7 @@
 
 .textarea {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: var(--fs-base);
   line-height: 1.6;
   color: var(--text-main);
   white-space: pre-wrap;

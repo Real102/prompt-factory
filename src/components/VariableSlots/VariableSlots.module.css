@@ -10,7 +10,7 @@
 
 .label {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--fs-xs);
   color: var(--text-dim);
   flex-shrink: 0;
 }
@@ -36,7 +36,7 @@
 
 .tag {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--fs-base);
   color: var(--bg-overlay);
   padding: 2px 6px;
   border-radius: 3px;
@@ -45,13 +45,13 @@
 
 .eq {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--fs-base);
   color: var(--text-dim);
 }
 
 .input {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--fs-base);
   color: var(--text-main);
   background: var(--bg-preview);
   border: 1px solid var(--stroke);

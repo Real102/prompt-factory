@@ -19,7 +19,7 @@
   height: 32px;
   border: 1px solid var(--accent);
   color: var(--accent);
-  font-size: 12px;
+  font-size: var(--fs-base);
 }
 
 .inject {
@@ -27,7 +27,7 @@
   height: 36px;
   border: 1px solid var(--cat-fmt);
   color: var(--cat-fmt);
-  font-size: 13px;
+  font-size: var(--fs-md);
 }
 
 @keyframes fadeOut {

@@ -23,7 +23,7 @@
 
 .title {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--fs-xs);
   color: var(--text-dim);
 }
 
@@ -32,7 +32,7 @@
   border: none;
   color: var(--text-dim2);
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--fs-base);
   cursor: pointer;
   padding: 0;
 }
@@ -57,7 +57,7 @@
   outline: none;
   padding: 0 8px;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--fs-base);
   color: var(--text-main);
 }
 
@@ -92,7 +92,7 @@
   border-radius: 4px;
   background: var(--accent);
   color: var(--bg-overlay);
-  font-size: 11px;
+  font-size: var(--fs-base);
   cursor: pointer;
   flex-shrink: 0;
   display: flex;
@@ -107,7 +107,7 @@
   background: var(--bg-panel2);
   border: 1px solid var(--stroke);
   color: var(--text-dim);
-  font-size: 11px;
+  font-size: var(--fs-base);
   cursor: pointer;
   flex-shrink: 0;
   display: flex;
@@ -141,7 +141,7 @@
   border: none;
   background: transparent;
   color: var(--text-dim);
-  font-size: 11px;
+  font-size: var(--fs-base);
   cursor: pointer;
   padding: 0;
   display: flex;
@@ -158,7 +158,7 @@
 .emptyCat {
   padding: 8px 8px;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--fs-base);
   color: var(--text-dim);
 }
 
@@ -181,7 +181,7 @@
 .popconfirmMsg {
   display: block;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--fs-base);
   color: var(--text-main);
   line-height: 1.4;
   margin-bottom: 8px;
@@ -201,7 +201,7 @@
   border: 1px solid var(--stroke);
   color: var(--text-dim2);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--fs-xs);
   cursor: pointer;
 }
 
@@ -217,7 +217,7 @@
   background: #ff7a3d;
   color: #fff;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--fs-xs);
   cursor: pointer;
 }
 
@@ -253,18 +253,18 @@
 
 .groupName {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--fs-base);
   font-weight: 700;
 }
 
 .groupCount {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--fs-xs);
   color: var(--text-dim);
 }
 
 .collapseIcon {
-  font-size: 10px;
+  font-size: var(--fs-xs);
   color: var(--text-dim);
   margin-left: auto;
 }
@@ -304,7 +304,7 @@
   flex: 1;
   min-width: 0;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--fs-base);
   color: var(--text-main);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -315,7 +315,7 @@
   flex: 2;
   min-width: 0;
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--fs-xs);
   color: var(--text-dim);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -335,7 +335,7 @@
 }
 
 .checkmark {
-  font-size: 10px;
+  font-size: var(--fs-xs);
   color: var(--bg-overlay);
   line-height: 1;
 }
