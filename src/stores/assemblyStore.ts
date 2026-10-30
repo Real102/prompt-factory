@@ -42,6 +42,13 @@ function computeComposedText(assemblyItems: string[]): string {
   return compose(assemblyItems, snippets)
 }
 
+/** 当前选中模板是否为固化型（未选中视为 false，允许操作拼装台） */
+function isSelectedSolidified(selectedTemplateId: string | null): boolean {
+  if (!selectedTemplateId) return false
+  const tpl = useTemplateStore.getState().templates[selectedTemplateId]
+  return tpl?.type !== 'reference'
+}
+
 /** 注入/复制成功后，对当前选中的模板或拼装台片段 usage_count +1 */
 function incrementUsageForSelection(state: AssemblyStore): void {
   if (state.selectedTemplateId) {
@@ -82,19 +89,27 @@ export const useAssemblyStore = create<AssemblyStore>((set, get) => ({
 
   removeFromAssembly: id => {
     if (get().isLocked) return
-    if (get().selectedTemplateId) return
+    const selectedTemplateId = get().selectedTemplateId
+    // 固化型模板选中时拼装台为空，直接返回
+    if (isSelectedSolidified(selectedTemplateId)) return
     const { assemblyItems } = get()
     const next = assemblyItems.filter(item => item !== id)
     set({
       assemblyItems: next,
       composedText: computeComposedText(next),
-      canAction: next.length > 0
+      canAction: next.length > 0,
+      // 引用型选中时调整组合即脱离模板，清除选中回到普通拼装
+      ...(selectedTemplateId ? { selectedTemplateId: null, variables: {} } : {}),
     })
+    if (selectedTemplateId) {
+      useUIStore.getState().setSelectedTemplate(null)
+    }
   },
 
   reorderAssembly: (from, to) => {
     if (get().isLocked) return
-    if (get().selectedTemplateId) return
+    const selectedTemplateId = get().selectedTemplateId
+    if (isSelectedSolidified(selectedTemplateId)) return
     const { assemblyItems } = get()
     if (
       from < 0 ||
@@ -111,8 +126,13 @@ export const useAssemblyStore = create<AssemblyStore>((set, get) => ({
     set({
       assemblyItems: next,
       composedText: computeComposedText(next),
-      canAction: next.length > 0
+      canAction: next.length > 0,
+      // 引用型选中时调整顺序即脱离模板，清除选中回到普通拼装
+      ...(selectedTemplateId ? { selectedTemplateId: null, variables: {} } : {}),
     })
+    if (selectedTemplateId) {
+      useUIStore.getState().setSelectedTemplate(null)
+    }
   },
 
   clearAssembly: () => {
@@ -164,15 +184,34 @@ export const useAssemblyStore = create<AssemblyStore>((set, get) => ({
   selectTemplate: templateId => {
     const tpl = useTemplateStore.getState().templates[templateId]
     if (!tpl) return
+    // 引用型：steps 加载进拼装台（替换台内片段，悬空 ID 容错跳过）
+    if (tpl.type === 'reference') {
+      const snippets = useSnippetStore.getState().snippets
+      const validSteps = (tpl.steps ?? []).filter(id => snippets[id])
+      set({
+        selectedTemplateId: templateId,
+        variables: {},
+        assemblyItems: validSteps,
+        composedText: compose(validSteps, snippets),
+        canAction: validSteps.length > 0,
+        mode: 'assembly',
+        isLocked: false,
+        editedText: null
+      })
+      useUIStore.getState().setSelectedTemplate(templateId)
+      return
+    }
+    // 固化型：content 填入预览区，清空拼装台
+    const content = tpl.content ?? ''
     const vars: Record<string, string> = {}
-    for (const name of extractVars(tpl.content)) {
+    for (const name of extractVars(content)) {
       vars[name] = ''
     }
     set({
       selectedTemplateId: templateId,
       variables: vars,
       assemblyItems: [],
-      composedText: tpl.content,
+      composedText: content,
       canAction: true,
       mode: 'assembly',
       isLocked: false,
@@ -187,10 +226,15 @@ export const useAssemblyStore = create<AssemblyStore>((set, get) => ({
     if (selectedTemplateId) {
       const tpl = useTemplateStore.getState().templates[selectedTemplateId]
       if (!tpl) return
-      set({
-        variables: nextVars,
-        composedText: fillVars(tpl.content, nextVars)
-      })
+      if (tpl.type === 'reference') {
+        // 引用型：与拼装模式一致，变量值不回写 composedText（预览渲染时显示已填值）
+        set({ variables: nextVars })
+      } else {
+        set({
+          variables: nextVars,
+          composedText: fillVars(tpl.content ?? '', nextVars)
+        })
+      }
     } else {
       // 拼装模式：composedText 保持占位符，仅更新 variables
       // 预览区渲染时通过 variables[name] 显示已填值
@@ -257,10 +301,10 @@ export const useAssemblyStore = create<AssemblyStore>((set, get) => ({
 }))
 
 // ---- 跨 Store 同步 ----
-// 拼装模式：snippetStore 变化时重算 composedText
+// 拼装/引用型模式：snippetStore 变化时重算 composedText（固化型选中时拼装台为空，跳过）
 useSnippetStore.subscribe(state => {
   const assemblyState = useAssemblyStore.getState()
-  if (assemblyState.selectedTemplateId) return
+  if (assemblyState.selectedTemplateId && isSelectedSolidified(assemblyState.selectedTemplateId)) return
   if (assemblyState.assemblyItems.length === 0) return
   const newComposed = compose(assemblyState.assemblyItems, state.snippets)
   if (newComposed !== assemblyState.composedText) {
@@ -274,7 +318,12 @@ useTemplateStore.subscribe(state => {
   if (!assemblyState.selectedTemplateId) return
   const tpl = state.templates[assemblyState.selectedTemplateId]
   if (!tpl) return
-  const newComposed = fillVars(tpl.content, assemblyState.variables)
+  let newComposed: string
+  if (tpl.type === 'reference') {
+    newComposed = compose(tpl.steps ?? [], useSnippetStore.getState().snippets)
+  } else {
+    newComposed = fillVars(tpl.content ?? '', assemblyState.variables)
+  }
   if (newComposed !== assemblyState.composedText) {
     useAssemblyStore.setState({ composedText: newComposed })
   }

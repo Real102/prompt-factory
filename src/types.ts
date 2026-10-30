@@ -11,14 +11,21 @@ export interface Snippet {
   usage_count: number;
 }
 
-/** 模板（整段型）：整段文本，可含 {{变量}} */
+/** 模板类型：固化型=整段文本独立存在；引用型=片段 ID 有序组合 */
+export type TemplateType = 'solidified' | 'reference';
+
+/** 模板：固化型存整段 content；引用型存片段 ID 有序列表 steps */
 export interface Template {
   id: string;
   name: string;
   /** 可选描述，不填默认用 content 作为描述 */
   description?: string;
-  /** 整段文本，可含 {{变量}} */
-  content: string;
+  /** 模板类型（旧数据迁移时默认补 solidified） */
+  type: TemplateType;
+  /** 固化型：整段文本，可含 {{变量}}；引用型转换后填入 */
+  content?: string;
+  /** 引用型：片段 ID 有序列表；固化型为 null */
+  steps?: string[] | null;
   /** 可选标签，最多5个 */
   tags?: string[];
   /** 使用次数，复制到剪贴板/注入时 +1 */

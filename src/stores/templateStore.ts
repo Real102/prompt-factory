@@ -1,6 +1,7 @@
 // ============================================================
 // Prompt Factory - 模板 Store
-// 管理整段型模板的 CRUD、标签、usage_count，通过 StorageService 持久化
+// 管理模板（固化型/引用型）的 CRUD、标签、usage_count，
+// 通过 StorageService 持久化
 // ============================================================
 
 import { create } from 'zustand';
@@ -23,6 +24,20 @@ function genTemplateId(): string {
   return `tpl_${Date.now().toString(36)}`;
 }
 
+/** 统计片段被多少个引用型模板引用（删除片段前的引用保护提示用） */
+export function countSnippetReferences(
+  templates: Record<string, Template>,
+  snippetId: string
+): number {
+  return Object.values(templates).filter(
+    (t) => t.type === 'reference' && (t.steps ?? []).includes(snippetId)
+  ).length;
+}
+
+/** 新增模板入参（引用型不存 content，固化型不存 steps） */
+export type NewTemplateData = Pick<Template, 'name' | 'type'> &
+  Partial<Pick<Template, 'description' | 'content' | 'steps' | 'tags'>>;
+
 /** 模板 Store 接口 */
 interface TemplateStore {
   /** 所有模板字典 */
@@ -31,8 +46,8 @@ interface TemplateStore {
   loading: boolean;
   /** 从存储加载数据 */
   loadTemplates: () => Promise<void>;
-  /** 新增模板并持久化 */
-  addTemplate: (data: Omit<Template, 'id' | 'usage_count'>) => Promise<void>;
+  /** 新增模板并持久化（按类型规范化 content/steps） */
+  addTemplate: (data: NewTemplateData) => Promise<Template>;
   /** 更新模板并持久化 */
   updateTemplate: (id: string, data: Partial<Omit<Template, 'id' | 'usage_count'>>) => Promise<void>;
   /** 删除模板并持久化 */
@@ -43,6 +58,32 @@ interface TemplateStore {
   addTag: (id: string, tag: string) => Promise<void>;
   /** 移除标签 */
   removeTag: (id: string, tag: string) => Promise<void>;
+  /** 从所有引用型模板 steps 中移除指定片段 ID（片段被删除时调用） */
+  removeSnippetReferences: (snippetIds: string[]) => Promise<void>;
+  /** 引用型编辑 content 后单向转换为固化型（steps 清空，不可逆） */
+  convertToSolidified: (id: string, content: string) => Promise<void>;
+}
+
+/** 按模板类型规范化：引用型无 content，固化型无 steps */
+function normalizeByType(data: NewTemplateData): Omit<Template, 'id' | 'usage_count'> {
+  if (data.type === 'reference') {
+    return {
+      name: data.name,
+      description: data.description,
+      type: 'reference',
+      content: undefined,
+      steps: data.steps ?? [],
+      tags: data.tags ?? [],
+    };
+  }
+  return {
+    name: data.name,
+    description: data.description,
+    type: 'solidified',
+    content: data.content ?? '',
+    steps: null,
+    tags: data.tags ?? [],
+  };
 }
 
 export const useTemplateStore = create<TemplateStore>((set, get) => ({
@@ -61,13 +102,14 @@ export const useTemplateStore = create<TemplateStore>((set, get) => ({
 
   addTemplate: async (data) => {
     const template: Template = {
-      ...data,
+      ...normalizeByType(data),
       id: genTemplateId(),
       usage_count: 0,
     };
     const next = { ...get().templates, [template.id]: template };
     set({ templates: next });
     await storageService.save({ templates: next });
+    return template;
   },
 
   updateTemplate: async (id, data) => {
@@ -114,6 +156,38 @@ export const useTemplateStore = create<TemplateStore>((set, get) => ({
     if (!existing) return;
     const tags = (existing.tags ?? []).filter((t) => t !== tag);
     const updated: Template = { ...existing, tags };
+    const next = { ...get().templates, [id]: updated };
+    set({ templates: next });
+    await storageService.save({ templates: next });
+  },
+
+  removeSnippetReferences: async (snippetIds) => {
+    if (snippetIds.length === 0) return;
+    const idSet = new Set(snippetIds);
+    let changed = false;
+    const next: Record<string, Template> = {};
+    for (const [id, tpl] of Object.entries(get().templates)) {
+      if (tpl.type === 'reference' && (tpl.steps ?? []).some((sid) => idSet.has(sid))) {
+        next[id] = { ...tpl, steps: (tpl.steps ?? []).filter((sid) => !idSet.has(sid)) };
+        changed = true;
+      } else {
+        next[id] = tpl;
+      }
+    }
+    if (!changed) return;
+    set({ templates: next });
+    await storageService.save({ templates: next });
+  },
+
+  convertToSolidified: async (id, content) => {
+    const existing = get().templates[id];
+    if (!existing) return;
+    const updated: Template = {
+      ...existing,
+      type: 'solidified',
+      steps: null,
+      content,
+    };
     const next = { ...get().templates, [id]: updated };
     set({ templates: next });
     await storageService.save({ templates: next });

@@ -8,6 +8,7 @@ import type { Snippet, CategoryMeta } from '@/types';
 import { CATEGORY_COLOR_POOL } from '@/types';
 import { storageService, getSeedData } from '@/services/storage';
 import { snippetService } from '@/services/snippetService';
+import { useTemplateStore } from './templateStore';
 
 const CSS_VAR_COLOR_MAP: Record<string, string> = {
   'var(--cat-role)': '#c9f73d',
@@ -111,6 +112,8 @@ export const useSnippetStore = create<SnippetStore>((set, get) => ({
       snippets: nextSnippets,
       categories,
     });
+    // 引用保护：从引用型模板 steps 中移除该片段 ID（PRD §4.5.8）
+    await useTemplateStore.getState().removeSnippetReferences([id]);
   },
 
   addCategory: async (name, color) => {
@@ -145,6 +148,9 @@ export const useSnippetStore = create<SnippetStore>((set, get) => ({
   deleteCategory: async (id) => {
     const { snippets, categories } = get();
     const nextCategories = categories.filter((c) => c.id !== id);
+    const removedIds = Object.values(snippets)
+      .filter((s) => s.category === id)
+      .map((s) => s.id);
     const nextSnippets = Object.fromEntries(
       Object.entries(snippets).filter(([, s]) => s.category !== id)
     );
@@ -153,6 +159,8 @@ export const useSnippetStore = create<SnippetStore>((set, get) => ({
       snippets: nextSnippets,
       categories: nextCategories,
     });
+    // 引用保护：连带删除的片段同样从引用型模板 steps 中移除（PRD §6.6）
+    await useTemplateStore.getState().removeSnippetReferences(removedIds);
   },
 
   incrementUsage: async (id) => {

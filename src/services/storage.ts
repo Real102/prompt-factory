@@ -26,7 +26,7 @@ function isValidData(data: unknown): data is Partial<AppData> & Record<string, u
   );
 }
 
-/** 数据迁移：补齐旧数据缺失的 templates / usage_count 字段 */
+/** 数据迁移：补齐旧数据缺失的 templates / usage_count / type 字段 */
 function migrateData(data: Partial<AppData>): AppData {
   const snippets = data.snippets ?? {};
   const migratedSnippets = Object.fromEntries(
@@ -35,9 +35,19 @@ function migrateData(data: Partial<AppData>): AppData {
       { ...s, usage_count: s.usage_count ?? 0 },
     ])
   );
+  const templates = Object.fromEntries(
+    Object.entries(data.templates ?? {}).map(([id, t]) => [
+      id,
+      {
+        ...t,
+        type: t.type ?? 'solidified',
+        steps: t.type === 'reference' ? (t.steps ?? []) : (t.steps ?? null),
+      },
+    ])
+  );
   return {
     snippets: migratedSnippets,
-    templates: data.templates ?? {},
+    templates,
     categories: data.categories ?? [],
   };
 }

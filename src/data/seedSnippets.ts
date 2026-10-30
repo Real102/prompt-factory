@@ -323,7 +323,7 @@ const SEED_SNIPPETS: Array<Omit<Snippet, 'updated_at' | 'usage_count'>> = [
   }
 ]
 
-const SEED_TEMPLATES: Array<Omit<Template, 'id'>> = [
+const SEED_TEMPLATES: Array<Omit<Template, 'id' | 'type'>> = [
   {
     name: 'Rust 代码审查',
     description: '专注代码质量、安全与性能，按四列格式输出审查结果',
@@ -426,7 +426,7 @@ export function getSeedData(): AppData {
   const templates: Record<string, Template> = {}
   for (let i = 0; i < SEED_TEMPLATES.length; i++) {
     const id = `tpl_seed_${i + 1}`
-    templates[id] = { ...SEED_TEMPLATES[i], id }
+    templates[id] = { ...SEED_TEMPLATES[i], type: 'solidified', steps: null, id }
   }
   return {
     snippets,
