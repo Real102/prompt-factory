@@ -8,10 +8,26 @@ import {
 import { createPortal } from 'react-dom'
 import { useSnippetStore } from '@/stores/snippetStore'
 import { useAssemblyStore } from '@/stores/assemblyStore'
+import { useTemplateStore, countSnippetReferences } from '@/stores/templateStore'
 import { useUIStore } from '@/stores/uiStore'
 import { CATEGORY_COLOR_POOL } from '@/types'
 import type { CategoryMeta } from '@/types'
 import styles from './SnippetLibrary.module.css'
+
+/** 统计一组片段被多少个引用型模板引用（模板去重，删除分类连带保护用） */
+function countCategoryReferences(
+  templates: ReturnType<typeof useTemplateStore.getState>['templates'],
+  snippetIds: string[]
+): number {
+  const idSet = new Set(snippetIds)
+  const tplIds = new Set<string>()
+  for (const t of Object.values(templates)) {
+    if (t.type === 'reference' && (t.steps ?? []).some((sid) => idSet.has(sid))) {
+      tplIds.add(t.id)
+    }
+  }
+  return tplIds.size
+}
 
 function SnippetLibrary() {
   const snippets = useSnippetStore(s => s.snippets)
@@ -27,6 +43,7 @@ function SnippetLibrary() {
   const showCategoryEditor = useUIStore(s => s.showCategoryEditor)
   const setShowCategoryEditor = useUIStore(s => s.setShowCategoryEditor)
   const deleteSnippet = useSnippetStore(s => s.deleteSnippet)
+  const templates = useTemplateStore(s => s.templates)
 
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
   const [newCatName, setNewCatName] = useState('')
@@ -221,9 +238,17 @@ function SnippetLibrary() {
           const color = catMeta.color
           const isEditing = editingCatId === cat
           const isConfirming = confirmCatId === cat
+          // 引用保护（PRD §6.6）：连带删除的片段被引用型模板引用时提示
+          const catRefCount = countCategoryReferences(
+            templates,
+            catSnippets.map(s => s.id)
+          )
           const confirmMsg =
             catSnippets.length > 0
-              ? `删除分类「${catMeta.name}」？该分类下 ${catSnippets.length} 个片段也将被删除。`
+              ? `删除分类「${catMeta.name}」？该分类下 ${catSnippets.length} 个片段也将被删除。` +
+                (catRefCount > 0
+                  ? `其中片段被 ${catRefCount} 个模板引用，删除后模板将丢失对应内容。`
+                  : '')
               : `删除分类「${catMeta.name}」？`
           return (
             <div key={cat} className={styles.group}>
@@ -386,7 +411,18 @@ function SnippetLibrary() {
                                 >
                                   <span
                                     className={styles.popconfirmMsg}
-                                  >{`删除片段「${snippet.name}」？`}</span>
+                                  >
+                                    {(() => {
+                                      // 引用保护（PRD §4.5.8）：被引用型模板引用的片段删除时二次提示
+                                      const refCount = countSnippetReferences(
+                                        templates,
+                                        snippet.id
+                                      )
+                                      return refCount > 0
+                                        ? `删除片段「${snippet.name}」？该片段被 ${refCount} 个模板引用，删除后这些模板将丢失该片段内容。`
+                                        : `删除片段「${snippet.name}」？`
+                                    })()}
+                                  </span>
                                   <div className={styles.popconfirmBtns}>
                                     <button
                                       type='button'

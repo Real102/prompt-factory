@@ -1,11 +1,24 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTemplateStore, getTagColor } from '@/stores/templateStore';
+import { useSnippetStore } from '@/stores/snippetStore';
 import { useUIStore } from '@/stores/uiStore';
 import { useAssemblyStore } from '@/stores/assemblyStore';
 import styles from './TemplateList.module.css';
 
+/** 引用型模板第二行兜底：steps 片段名序列（如「角色设定 → 操作权限 → 输出格式」，悬空 ID 跳过） */
+export function referenceSummary(
+  steps: string[] | null | undefined,
+  snippets: Record<string, { name: string }>
+): string {
+  return (steps ?? [])
+    .map((id) => snippets[id]?.name)
+    .filter((n): n is string => Boolean(n))
+    .join(' → ');
+}
+
 function TemplateList() {
   const templates = useTemplateStore((s) => s.templates);
+  const snippets = useSnippetStore((s) => s.snippets);
   const addTag = useTemplateStore((s) => s.addTag);
   const removeTag = useTemplateStore((s) => s.removeTag);
   const deleteTemplate = useTemplateStore((s) => s.deleteTemplate);
@@ -97,7 +110,11 @@ function TemplateList() {
         const hiddenCount = tags.length - visibleTags.length;
         const isTagInput = tagInputId === tpl.id;
         const isConfirming = confirmId === tpl.id;
-        const desc = tpl.description || tpl.content;
+        // 第二行概述：description 优先；固化型回落 content，引用型回落 steps 片段名序列（PRD §5.6）
+        const desc =
+          tpl.type === 'reference'
+            ? tpl.description || referenceSummary(tpl.steps, snippets)
+            : tpl.description || tpl.content;
 
         return (
           <div

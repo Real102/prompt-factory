@@ -5,6 +5,7 @@ import {
 } from '@dnd-kit/sortable';
 import { useSnippetStore } from '@/stores/snippetStore';
 import { useAssemblyStore } from '@/stores/assemblyStore';
+import { useTemplateStore } from '@/stores/templateStore';
 import type { Snippet } from '@/types';
 import SortableChip from './SortableChip';
 import styles from './AssemblyTrack.module.css';
@@ -12,6 +13,8 @@ import styles from './AssemblyTrack.module.css';
 /**
  * 拼装台 —— 高 84, 填充 var(--bg-panel)。
  * 横向排列可拖拽排序的 chip, 空态提示引导用户从片段库加入。
+ * 固化型模板选中时隐藏（预览区直接显示 content）；
+ * 引用型模板选中时按 steps 加载显示 chip（PRD §4.5.3）。
  */
 function AssemblyTrack() {
   const snippets = useSnippetStore((s) => s.snippets);
@@ -20,8 +23,11 @@ function AssemblyTrack() {
   const removeFromAssembly = useAssemblyStore((s) => s.removeFromAssembly);
   const isLocked = useAssemblyStore((s) => s.isLocked);
   const selectedTemplateId = useAssemblyStore((s) => s.selectedTemplateId);
+  const selectedTemplateType = useTemplateStore(
+    (s) => (selectedTemplateId ? s.templates[selectedTemplateId]?.type : undefined)
+  );
 
-  if (selectedTemplateId) return null;
+  if (selectedTemplateId && selectedTemplateType !== 'reference') return null;
 
   const assemblySnippets = assemblyItems
     .map((id) => snippets[id])

@@ -35,12 +35,25 @@ function SearchResults() {
   const results = useMemo<ResultEntry[]>(() => {
     if (!q) return [];
     const tplResults: ResultEntry[] = Object.values(templates)
-      .filter(
-        (t) =>
+      .filter((t) => {
+        if (
           t.name.toLowerCase().includes(q) ||
-          (t.description?.toLowerCase().includes(q) ?? false) ||
-          t.content.toLowerCase().includes(q),
-      )
+          (t.description?.toLowerCase().includes(q) ?? false)
+        ) {
+          return true;
+        }
+        // 引用型：匹配 steps 引用片段的名称与内容（PRD §4.5.6）；固化型：匹配 content
+        if (t.type === 'reference') {
+          return (t.steps ?? []).some((id) => {
+            const sn = snippets[id];
+            return (
+              sn != null &&
+              (sn.name.toLowerCase().includes(q) || sn.content.toLowerCase().includes(q))
+            );
+          });
+        }
+        return (t.content ?? '').toLowerCase().includes(q);
+      })
       .sort((a, b) => b.usage_count - a.usage_count)
       .map((t) => ({ type: 'template', item: t }));
     const snpResults: ResultEntry[] = Object.values(snippets)
@@ -196,7 +209,15 @@ function SearchResults() {
             if (entry.type === 'template') {
               const t = entry.item;
               const tagList = t.tags ?? [];
-              const varCount = extractVars(t.content).length;
+              // 引用型变量数从 steps 引用片段中提取（PRD §5.7）
+              const varCount =
+                t.type === 'reference'
+                  ? extractVars(
+                      (t.steps ?? [])
+                        .map((id) => snippets[id]?.content ?? '')
+                        .join('\n'),
+                    ).length
+                  : extractVars(t.content ?? '').length;
               return (
                 <div
                   key={`tpl-${t.id}`}

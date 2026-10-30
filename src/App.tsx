@@ -29,6 +29,11 @@ function App() {
   const editingTemplateId = useUIStore(s => s.editingTemplateId)
   const activeTab = useUIStore(s => s.activeTab)
   const selectedTemplateId = useAssemblyStore(s => s.selectedTemplateId)
+  const templates = useTemplateStore(s => s.templates)
+  // 固化型选中 → 变量区（模板模式）；引用型选中 → 变量插槽（与拼装模式体验一致，PRD §4.5.3）
+  const selectedSolidified = selectedTemplateId
+    ? templates[selectedTemplateId]?.type !== 'reference'
+    : false
 
   useGlobalShortcut()
   useUiScale()
@@ -43,7 +48,7 @@ function App() {
       <SearchBar />
       <SearchResults />
       <AssemblyTrack />
-      {selectedTemplateId ? <VariableArea /> : <VariableSlots />}
+      {selectedSolidified ? <VariableArea /> : <VariableSlots />}
       <PreviewPanel />
       <BottomBar />
       {showTemplateEditor ? (

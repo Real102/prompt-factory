@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react'
 import { useAssemblyStore } from '@/stores/assemblyStore'
 import { useSnippetStore } from '@/stores/snippetStore'
-import { getTagColor } from '@/stores/templateStore'
+import { useTemplateStore, getTagColor } from '@/stores/templateStore'
 import { useUIStore } from '@/stores/uiStore'
 import { splitByVariables, extractVariableOwners, applyVariables } from '@/services/composeEngine'
 import styles from './PreviewPanel.module.css'
@@ -11,6 +11,7 @@ import styles from './PreviewPanel.module.css'
  * 拼装模式：只读 <pre> 显示自动合成文本。
  * 编辑模式：可编辑 <textarea>，边框高亮，用户修改不回写片段库。
  * 快捷键：编辑模式下 Escape 取消编辑（等同「取消」按钮），丢弃 editedText 还原。
+ * 变量高亮：固化型模板按变量名哈希取色；拼装/引用型按来源片段分类色（PRD §4.5.8）。
  */
 function PreviewPanel() {
   const mode = useAssemblyStore(s => s.mode)
@@ -23,6 +24,9 @@ function PreviewPanel() {
   const selectedTemplateId = useAssemblyStore(s => s.selectedTemplateId)
   const snippets = useSnippetStore(s => s.snippets)
   const categories = useSnippetStore(s => s.categories)
+  const templates = useTemplateStore(s => s.templates)
+  const selectedSolidified =
+    selectedTemplateId != null && templates[selectedTemplateId]?.type !== 'reference'
 
   useEffect(() => {
     if (mode !== 'editing') return
@@ -79,7 +83,7 @@ function PreviewPanel() {
                   <span
                     key={i}
                     className={styles.varHighlight}
-                    style={{ color: selectedTemplateId ? getTagColor(name) : (varOwners.get(name) || '#c9f73d') }}
+                    style={{ color: selectedSolidified ? getTagColor(name) : (varOwners.get(name) || '#c9f73d') }}
                   >
                     {value || seg.content}
                   </span>

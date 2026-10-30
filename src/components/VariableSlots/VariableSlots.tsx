@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useAssemblyStore } from '@/stores/assemblyStore';
 import { useSnippetStore } from '@/stores/snippetStore';
 import {
@@ -13,6 +13,7 @@ import styles from './VariableSlots.module.css';
  * 无占位符时不渲染（height=0），不占浮层空间。
  * 编辑/锁定模式下输入框禁用。
  * 标签颜色跟随来源片段分类色，与 PreviewPanel 共用 varOwners 映射。
+ * 引用型模板选中后自动聚焦第一个变量框（PRD §4.5.3，同固化型行为）。
  */
 function VariableSlots() {
   const composedText = useAssemblyStore((s) => s.composedText);
@@ -21,8 +22,11 @@ function VariableSlots() {
   const setVariable = useAssemblyStore((s) => s.setVariable);
   const isLocked = useAssemblyStore((s) => s.isLocked);
   const canAction = useAssemblyStore((s) => s.canAction);
+  const selectedTemplateId = useAssemblyStore((s) => s.selectedTemplateId);
   const snippets = useSnippetStore((s) => s.snippets);
   const categories = useSnippetStore((s) => s.categories);
+
+  const firstInputRef = useRef<HTMLInputElement | null>(null);
 
   const varNames = useMemo(
     () => extractVariables(composedText),
@@ -33,6 +37,12 @@ function VariableSlots() {
     () => extractVariableOwners(assemblyItems, snippets, categories),
     [assemblyItems, snippets, categories]
   );
+
+  useEffect(() => {
+    if (selectedTemplateId && varNames.length > 0) {
+      firstInputRef.current?.focus();
+    }
+  }, [selectedTemplateId, varNames.length]);
 
   if (varNames.length === 0 || !canAction) return null;
 
@@ -50,6 +60,7 @@ function VariableSlots() {
             </span>
             <span className={styles.eq}>=</span>
             <input
+              ref={name === varNames[0] ? firstInputRef : undefined}
               className={styles.input}
               type="text"
               value={variables[name] ?? ''}

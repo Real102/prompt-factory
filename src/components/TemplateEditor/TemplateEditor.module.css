@@ -89,3 +89,77 @@
 .cancelBtn:hover {
   border-color: var(--accent);
 }
+
+.refHint {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--text-dim2);
+}
+
+.confirmMask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.confirmDialog {
+  width: 360px;
+  background: var(--bg-panel);
+  border: 1px solid var(--stroke);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.confirmMsg {
+  font-family: var(--font-mono);
+  font-size: var(--fs-base);
+  color: var(--text-main);
+  line-height: 1.5;
+}
+
+.confirmBtns {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.confirmCancel {
+  height: 28px;
+  padding: 0 16px;
+  border-radius: 4px;
+  background: var(--bg-panel2);
+  border: 1px solid var(--stroke);
+  color: var(--text-main);
+  font-family: var(--font-mono);
+  font-size: var(--fs-base);
+  cursor: pointer;
+}
+
+.confirmCancel:hover {
+  border-color: var(--accent);
+}
+
+.confirmOk {
+  height: 28px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 4px;
+  background: #ff7a3d;
+  color: #0c130f;
+  font-family: var(--font-mono);
+  font-size: var(--fs-base);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.confirmOk:hover {
+  background: #ff8f5a;
+}
