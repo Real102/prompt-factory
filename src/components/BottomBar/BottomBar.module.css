@@ -115,3 +115,17 @@
   border-color: var(--accent);
   color: var(--accent);
 }
+
+.btnSaveAs {
+  background: var(--bg-panel2);
+  border: 1px solid var(--stroke);
+  color: var(--text-dim2);
+  padding: 0 14px;
+  font-size: var(--fs-base);
+  flex-shrink: 0;
+}
+
+.btnSaveAs:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}

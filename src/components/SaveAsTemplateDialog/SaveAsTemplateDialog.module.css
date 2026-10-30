@@ -1,0 +1,120 @@
+.mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.dialog {
+  width: 380px;
+  background: var(--bg-panel);
+  border: 1px solid var(--stroke);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.title {
+  font-family: var(--font-mono);
+  font-size: var(--fs-md);
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.typeBadge {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  padding: 1px 8px;
+  border-radius: 3px;
+  background: color-mix(in srgb, #c9f73d 15%, transparent);
+  color: var(--accent);
+}
+
+.typeRef {
+  background: color-mix(in srgb, #6ad7ff 15%, transparent);
+  color: #6ad7ff;
+}
+
+.typeHint {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--text-dim2);
+  margin-top: -4px;
+}
+
+.input {
+  height: 30px;
+  background: var(--bg-overlay);
+  border: 1px solid var(--stroke);
+  border-radius: 4px;
+  outline: none;
+  padding: 0 8px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-base);
+  color: var(--text-main);
+}
+
+.input::placeholder {
+  color: var(--text-dim);
+}
+
+.input:focus {
+  border-color: var(--accent);
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 2px;
+}
+
+.saveBtn {
+  height: 28px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 4px;
+  background: var(--accent);
+  color: var(--bg-overlay);
+  font-family: var(--font-mono);
+  font-size: var(--fs-base);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.saveBtn:hover:not(:disabled) {
+  background: #d4ff5a;
+}
+
+.saveBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.cancelBtn {
+  height: 28px;
+  padding: 0 16px;
+  border-radius: 4px;
+  background: var(--bg-panel2);
+  border: 1px solid var(--stroke);
+  color: var(--text-main);
+  font-family: var(--font-mono);
+  font-size: var(--fs-base);
+  cursor: pointer;
+}
+
+.cancelBtn:hover {
+  border-color: var(--accent);
+}
