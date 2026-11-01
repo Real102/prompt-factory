@@ -15,7 +15,7 @@
         "label": "main",
         "title": "Prompt Factory",
         "width": 680,
-        "height": 560,
+        "height": 800,
         "decorations": false,
         "transparent": true,
         "alwaysOnTop": true,

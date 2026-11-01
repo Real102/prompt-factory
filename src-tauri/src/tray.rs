@@ -21,7 +21,7 @@ pub fn create_tray(app: &tauri::AppHandle) -> tauri::Result<()> {
     )?;
     let quit_item = MenuItem::with_id(app, "quit", "退出", true, None::<&str>)?;
 
-    // 界面缩放子菜单（档位来自 commands::UI_SCALES），插在"开机自启"上方
+    // 界面大小子菜单（档位来自 commands::UI_SCALES），插在"开机自启"上方
     let current_scale = read_ui_scale();
     let scale_items = UI_SCALES
         .iter()
@@ -37,7 +37,7 @@ pub fn create_tray(app: &tauri::AppHandle) -> tauri::Result<()> {
         .iter()
         .map(|i| i as &dyn IsMenuItem<tauri::Wry>)
         .collect();
-    let scale_submenu = Submenu::with_items(app, "界面缩放", true, &scale_refs)?;
+    let scale_submenu = Submenu::with_items(app, "界面大小", true, &scale_refs)?;
     // 克隆句柄供菜单事件闭包更新选中态
     let scale_handlers = scale_items.clone();
 
@@ -82,7 +82,7 @@ pub fn create_tray(app: &tauri::AppHandle) -> tauri::Result<()> {
         })
         .on_menu_event(move |app, event| {
             let id = event.id().as_ref();
-            // 界面缩放档位：scale_80 / scale_90 / scale_100 / scale_110 / scale_125 / scale_150
+            // 界面大小档位：scale_100 / scale_125 / scale_150
             if let Some(rest) = id.strip_prefix("scale_") {
                 if let Ok(pct) = rest.parse::<i32>() {
                     let scale = pct as f64 / 100.0;

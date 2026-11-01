@@ -2,8 +2,10 @@ import { useEffect } from 'react'
 import { invoke } from '@tauri-apps/api/core'
 import { listen } from '@tauri-apps/api/event'
 
+const ROOT_FONT_SIZE = 12
+
 const applyScale = (scale: number) => {
-  document.documentElement.style.setProperty('--ui-scale', String(scale))
+  document.documentElement.style.fontSize = `${ROOT_FONT_SIZE * scale}px`
 }
 
 export function useUiScale() {

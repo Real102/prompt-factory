@@ -1,5 +1,5 @@
 use std::path::PathBuf;
-use tauri::Emitter;
+use tauri::{Emitter, Manager};
 
 /// IPC command: 复制文本到剪贴板
 #[tauri::command]
@@ -75,20 +75,39 @@ fn get_settings_file_path() -> PathBuf {
     exe_dir.join("data").join("prompt-factory-settings.json")
 }
 
-/// 界面缩放可选档位
-pub const UI_SCALES: [f64; 6] = [0.8, 0.9, 1.0, 1.1, 1.25, 1.5];
+/// 界面大小可选档位
+pub const UI_SCALES: [f64; 3] = [1.0, 1.25, 1.5];
 
-/// 读取 ui_scale；文件缺失或字段非法时返回 1.0
+/// 浮层窗口基准尺寸（逻辑像素，与 tauri.conf.json 保持一致）
+pub const BASE_W: f64 = 680.0;
+pub const BASE_H: f64 = 800.0;
+
+/// 读取 ui_scale（吸附到最近合法档位，兼容旧档 0.8/0.9/1.1）；文件缺失或字段非法时返回 1.0
 pub fn read_ui_scale() -> f64 {
     let path = get_settings_file_path();
-    match std::fs::read_to_string(&path) {
+    let raw = match std::fs::read_to_string(&path) {
         Ok(content) => serde_json::from_str::<serde_json::Value>(&content)
             .ok()
             .and_then(|v| v.get("ui_scale").and_then(|s| s.as_f64()))
             .filter(|&x| x >= 0.5 && x <= 2.0)
             .unwrap_or(1.0),
         Err(_) => 1.0,
-    }
+    };
+    snap_to_scale(raw)
+}
+
+/// 把存储的任意值吸附到最近的合法档位
+fn snap_to_scale(value: f64) -> f64 {
+    UI_SCALES
+        .iter()
+        .copied()
+        .min_by(|a, b| {
+            (a - value)
+                .abs()
+                .partial_cmp(&(b - value).abs())
+                .unwrap_or(std::cmp::Ordering::Equal)
+        })
+        .unwrap_or(1.0)
 }
 
 /// 写入 ui_scale（保留 settings 其他字段），并向前端 emit ui-scale-changed 事件
@@ -115,6 +134,10 @@ pub fn write_ui_scale(scale: f64, app: &tauri::AppHandle) -> bool {
     }
     let ok = std::fs::write(&path, serde_json::to_string_pretty(&root).unwrap_or_default()).is_ok();
     let _ = app.emit("ui-scale-changed", clamped);
+    // 窗口尺寸跟随档位等比放大
+    if let Some(window) = app.get_webview_window("main") {
+        crate::window::apply_scale(&window, clamped);
+    }
     ok
 }
 

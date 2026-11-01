@@ -47,6 +47,12 @@ pub fn run() {
                 }
             }
 
+            // 按已存档位静默校准窗口尺寸（窗口初始不可见，用户无感）
+            if let Some(window) = app.get_webview_window("main") {
+                let scale = commands::read_ui_scale();
+                window::apply_scale(&window, scale);
+            }
+
             // 初始化系统托盘
             tray::create_tray(app.handle())?;
 

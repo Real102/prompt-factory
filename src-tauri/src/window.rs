@@ -1,7 +1,25 @@
 use std::sync::atomic::{AtomicBool, Ordering};
 use tauri::{Manager, WindowEvent};
 
+use crate::commands::{read_ui_scale, BASE_H, BASE_W};
+
 static AUTO_HIDE_ENABLED: AtomicBool = AtomicBool::new(true);
+
+/// 按档位设置窗口尺寸（读取当前显示器，宽、高分别做超屏 clamp），并重新居中
+pub fn apply_scale(window: &tauri::WebviewWindow, scale: f64) {
+    let s = scale.clamp(0.5, 2.0);
+    let mut w = BASE_W * s;
+    let mut h = BASE_H * s;
+    if let Ok(Some(monitor)) = window.current_monitor() {
+        let factor = monitor.scale_factor();
+        let logical_w = monitor.size().width as f64 / factor;
+        let logical_h = monitor.size().height as f64 / factor;
+        w = w.min(logical_w - 40.0);
+        h = h.min(logical_h - 80.0);
+    }
+    let _ = window.set_size(tauri::LogicalSize::new(w, h));
+    let _ = window.center();
+}
 
 /// 切换浮层窗口显示/隐藏的内部实现
 /// 供 IPC command、托盘点击、快捷键共用
@@ -10,7 +28,8 @@ pub fn toggle_overlay_impl(window: tauri::WebviewWindow) {
     if visible {
         let _ = window.hide();
     } else {
-        let _ = window.center();
+        // 唤出前按当前档位校准窗口尺寸（覆盖换屏后超屏的场景）
+        apply_scale(&window, read_ui_scale());
         let _ = window.show();
         let _ = window.set_focus();
     }
