@@ -56,7 +56,7 @@ function VariableSlots() {
               className={styles.tag}
               style={{ background: varOwners.get(name) || '#c9f73d' }}
             >
-              {`{{${name}}}`}
+              {name}
             </span>
             <span className={styles.eq}>=</span>
             <input

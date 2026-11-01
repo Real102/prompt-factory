@@ -28,7 +28,7 @@ function VariableArea() {
       <div className={styles.list}>
         {varEntries.map(([name, value], index) => (
           <div className={styles.varItem} key={name}>
-            <span className={styles.varName} style={{ color: getTagColor(name) }}>{`{{${name}}}`}</span>
+            <span className={styles.varName} style={{ color: getTagColor(name) }}>{name}</span>
             <span className={styles.varEquals}>=</span>
             <input
               ref={index === 0 ? firstInputRef : undefined}
