@@ -22,11 +22,12 @@ export function useGlobalShortcut(): void {
       const uiState = useUIStore.getState();
       const assemblyState = useAssemblyStore.getState();
 
-      // Escape → 编辑模式下退出编辑，否则收起浮层
+      // Escape → 编辑模式下让位（取消语义由 PreviewPanel 的 handler 独占处理），
+      // 否则收起浮层
       if (e.key === 'Escape') {
+        // 编辑模式的 Esc（=取消，resetEditing）由 PreviewPanel 独占处理；
+        // 此处不动作，消除双 handler 语义竞争（B2）
         if (assemblyState.mode === 'editing') {
-          e.preventDefault();
-          assemblyState.exitEditing();
           return;
         }
         if (uiState.overlayVisible) {

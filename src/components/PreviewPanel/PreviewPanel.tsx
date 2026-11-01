@@ -34,7 +34,9 @@ function PreviewPanel() {
       if (e.key !== 'Escape') return
       if (useUIStore.getState().searchPanelOpen) return
       e.preventDefault()
-      e.stopPropagation()
+      // 编辑模式 Esc=取消（项目决策）：stopImmediatePropagation 阻断同 target 上
+      // 后续 listener（如 useGlobalShortcut 的浮层收起），避免语义竞争（B2）
+      e.stopImmediatePropagation()
       resetEditing()
     }
     window.addEventListener('keydown', handler)
