@@ -44,10 +44,21 @@ function SnippetLibrary() {
   const setShowCategoryEditor = useUIStore(s => s.setShowCategoryEditor)
   const deleteSnippet = useSnippetStore(s => s.deleteSnippet)
   const templates = useTemplateStore(s => s.templates)
+  const collapsed = useUIStore(s => s.snippetCollapsed)
+  const initSnippetCollapsed = useUIStore(s => s.initSnippetCollapsed)
+  const toggleSnippetCollapse = useUIStore(s => s.toggleSnippetCollapse)
 
-  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
   const [newCatName, setNewCatName] = useState('')
-  const [newCatColor, setNewCatColor] = useState(CATEGORY_COLOR_POOL[0])
+  // 初始为建议色（色池中未被占用的第一个，与 store 分配算法一致，所见即所得）；
+  // 用户未主动选色时提交 undefined，交还 store 的 find(未用色) 分支（PRD §6.6，B3）
+  const [newCatColor, setNewCatColor] = useState<string>(() => {
+    const used = new Set(categories.map(c => c.color))
+    return (
+      CATEGORY_COLOR_POOL.find(c => !used.has(c)) ||
+      CATEGORY_COLOR_POOL[categories.length % CATEGORY_COLOR_POOL.length]
+    )
+  })
+  const [newCatColorTouched, setNewCatColorTouched] = useState(false)
   const [editingCatId, setEditingCatId] = useState<string | null>(null)
   const [editCatName, setEditCatName] = useState('')
   const [editCatColor, setEditCatColor] = useState('')
@@ -55,7 +66,6 @@ function SnippetLibrary() {
   const [confirmSnippetId, setConfirmSnippetId] = useState<string | null>(null)
   const popconfirmRef = useRef<HTMLDivElement>(null)
   const popTriggerRef = useRef<HTMLButtonElement | null>(null)
-  const initializedRef = useRef(false)
 
   const updatePopPosition = useCallback(() => {
     const pop = popconfirmRef.current
@@ -109,14 +119,9 @@ function SnippetLibrary() {
   }, [confirmCatId, confirmSnippetId, updatePopPosition])
 
   useEffect(() => {
-    if (initializedRef.current || categories.length === 0) return
-    initializedRef.current = true
-    const initial: Record<string, boolean> = {}
-    categories.forEach(c => {
-      initial[c.id] = true
-    })
-    setCollapsed(initial)
-  }, [categories])
+    if (categories.length === 0) return
+    initSnippetCollapsed(categories)
+  }, [categories, initSnippetCollapsed])
 
   const isInAssembly = (id: string) => assemblyItems.includes(id)
   const getCatColor = (catId: string): string => {
@@ -141,15 +146,13 @@ function SnippetLibrary() {
     }
   }
 
-  function toggleCollapse(cat: string) {
-    setCollapsed(prev => ({ ...prev, [cat]: !prev[cat] }))
-  }
-
   function handleAddCategory() {
     if (!newCatName.trim()) return
-    void addCategory(newCatName.trim(), newCatColor)
+    // 用户未主动选色时传 undefined，交还 store 的 find(未用色) 分支（B3）
+    void addCategory(newCatName.trim(), newCatColorTouched ? newCatColor : undefined)
     setNewCatName('')
-    setNewCatColor(CATEGORY_COLOR_POOL[0])
+    setNewCatColor(nextColor())
+    setNewCatColorTouched(false)
     setShowCategoryEditor(false)
   }
 
@@ -208,7 +211,10 @@ function SnippetLibrary() {
               className={styles.catColorInput}
               type='color'
               value={newCatColor}
-              onChange={e => setNewCatColor(e.target.value)}
+              onChange={e => {
+                setNewCatColor(e.target.value)
+                setNewCatColorTouched(true)
+              }}
             />
             <button
               type='button'
@@ -285,7 +291,7 @@ function SnippetLibrary() {
               ) : (
                 <div
                   className={`${styles.groupHeader} ${isConfirming ? styles.groupConfirming : ''}`}
-                  onClick={() => toggleCollapse(cat)}
+                  onClick={() => toggleSnippetCollapse(cat)}
                 >
                   <span
                     className={styles.groupDot}

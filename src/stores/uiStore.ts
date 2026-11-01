@@ -5,6 +5,7 @@
 
 import { create } from 'zustand';
 import { invoke } from '@tauri-apps/api/core';
+import type { CategoryMeta } from '@/types';
 
 /** Toast 通知类型 */
 interface Toast {
@@ -58,6 +59,12 @@ interface UIStore {
   setSelectedTemplate: (id: string | null) => void;
   /** 分类新增模式是否展开（片段库内，由 TabBar 的+分类触发） */
   showCategoryEditor: boolean;
+  /** 片段库分类折叠表（提升到 store：编辑器挂卸不丢失） */
+  snippetCollapsed: Record<string, boolean>;
+  /** 初始化片段库分类折叠表（仅首次加载填默认，保留用户已折叠状态） */
+  initSnippetCollapsed: (cats: CategoryMeta[]) => void;
+  /** 切换分类折叠 */
+  toggleSnippetCollapse: (cat: string) => void;
   /** 设置分类新增模式 */
   setShowCategoryEditor: (open: boolean) => void;
 }
@@ -77,6 +84,7 @@ export const useUIStore = create<UIStore>((set) => ({
   editingTemplateId: null,
   selectedTemplateId: null,
   showCategoryEditor: false,
+  snippetCollapsed: {},
 
   toggleOverlay: async () => {
     try {
@@ -136,5 +144,22 @@ export const useUIStore = create<UIStore>((set) => ({
 
   setShowCategoryEditor: (open) => {
     set({ showCategoryEditor: open });
+  },
+
+  initSnippetCollapsed: (cats) => {
+    set((s) => {
+      if (Object.keys(s.snippetCollapsed).length > 0) return {};
+      const initial: Record<string, boolean> = {};
+      cats.forEach((c) => {
+        initial[c.id] = true;
+      });
+      return { snippetCollapsed: initial };
+    });
+  },
+
+  toggleSnippetCollapse: (cat) => {
+    set((s) => ({
+      snippetCollapsed: { ...s.snippetCollapsed, [cat]: !s.snippetCollapsed[cat] },
+    }));
   },
 }));
