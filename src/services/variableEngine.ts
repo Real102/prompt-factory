@@ -30,7 +30,10 @@ export function extractVars(text: string): string[] {
 export function fillVars(text: string, vars: Record<string, string>): string {
   return text.replace(VAR_PATTERN, (_, raw: string) => {
     const name = raw.trim();
-    return vars[name] ?? `{{${raw}}}`;
+    // 空串视为未填（"填过再清空"回退占位符），与 null/undefined 同样回退；
+    // 与预览渲染 var 段（value || 占位符）的空串语义保持一致
+    const value = vars[name];
+    return value != null && value !== '' ? value : `{{${raw}}}`;
   });
 }
 

@@ -151,10 +151,9 @@ export const useAssemblyStore = create<AssemblyStore>((set, get) => ({
 
   enterEditing: () => {
     const { composedText, editedText, variables } = get()
-    // 占位符前后各加一个空格，再替换变量值
-    // 编辑框中通过空格辨认变量填入部分（textarea 无法富文本高亮）
-    const padded = composedText.replace(/\{\{([^{}]+)\}\}/g, ' $& ')
-    const resolved = fillVars(padded, variables)
+    // 编辑快照 = 当前输出快照：已填变量替换为填值、未填保留 {{占位符}}，
+    // 不做任何文本改写（原占位符两侧插空格行为已移除，PRD v1.1.3 §5.4）
+    const resolved = fillVars(composedText, variables)
     if (!resolved && !editedText) return
     set({
       mode: 'editing',
@@ -230,10 +229,9 @@ export const useAssemblyStore = create<AssemblyStore>((set, get) => ({
         // 引用型：与拼装模式一致，变量值不回写 composedText（预览渲染时显示已填值）
         set({ variables: nextVars })
       } else {
-        set({
-          variables: nextVars,
-          composedText: fillVars(tpl.content ?? '', nextVars)
-        })
+        // 固化型：与拼装/引用型一致，变量值不回写 composedText（占位符始终保留），
+        // 预览渲染层通过 variables[name] 显示已填值（PRD §6.3）
+        set({ variables: nextVars })
       }
     } else {
       // 拼装模式：composedText 保持占位符，仅更新 variables
@@ -322,7 +320,8 @@ useTemplateStore.subscribe(state => {
   if (tpl.type === 'reference') {
     newComposed = compose(tpl.steps ?? [], useSnippetStore.getState().snippets)
   } else {
-    newComposed = fillVars(tpl.content ?? '', assemblyState.variables)
+    // 固化型：composedText 保持模板原文（占位符始终保留），渲染层显示已填值
+    newComposed = tpl.content ?? ''
   }
   if (newComposed !== assemblyState.composedText) {
     useAssemblyStore.setState({ composedText: newComposed })
