@@ -1,6 +1,6 @@
 .toast {
   position: fixed;
-  bottom: 72px;
+  bottom: 6rem;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -15,16 +15,16 @@
 }
 
 .copy {
-  width: 180px;
-  height: 32px;
+  width: 15rem;
+  height: 2.6667rem;
   border: 1px solid var(--accent);
   color: var(--accent);
   font-size: var(--fs-base);
 }
 
 .inject {
-  width: 200px;
-  height: 36px;
+  width: 16.6667rem;
+  height: 3rem;
   border: 1px solid var(--cat-fmt);
   color: var(--cat-fmt);
   font-size: var(--fs-md);

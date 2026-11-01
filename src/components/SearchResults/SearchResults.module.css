@@ -1,10 +1,10 @@
 .panel {
   position: absolute;
-  top: 92px;
+  top: 7.6667rem;
   left: 0;
   right: 0;
   z-index: 10;
-  max-height: 272px;
+  max-height: 22.6667rem;
   display: flex;
   flex-direction: column;
   background: var(--bg-overlay);
@@ -26,9 +26,9 @@
 }
 
 .header {
-  height: 30px;
+  height: 2.5rem;
   flex-shrink: 0;
-  padding: 0 16px;
+  padding: 0 1.3333rem;
   background: var(--bg-panel);
   border-bottom: 1px solid var(--stroke);
   display: flex;
@@ -52,14 +52,14 @@
   font-size: var(--fs-xs);
   color: var(--text-dim);
   display: flex;
-  gap: 10px;
+  gap: 0.8333rem;
 }
 
 .kbd kbd {
   color: var(--text-dim2);
   border: 1px solid var(--stroke);
   border-radius: 3px;
-  padding: 0 4px;
+  padding: 0 0.3333rem;
   font-size: var(--fs-xs);
   font-family: var(--font-mono);
 }
@@ -68,7 +68,7 @@
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 4px 0;
+  padding: 0.3333rem 0;
   scrollbar-width: thin;
   scrollbar-color: var(--stroke) transparent;
 }
@@ -85,9 +85,9 @@
 .row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  height: 34px;
-  padding: 0 16px;
+  gap: 0.6667rem;
+  height: 2.8333rem;
+  padding: 0 1.3333rem;
   cursor: pointer;
   border-left: 2px solid transparent;
   transition: background 0.1s ease;
@@ -125,13 +125,13 @@
 .cat {
   display: inline-flex;
   align-items: center;
-  height: 18px;
+  height: 1.5rem;
   font-family: var(--font-mono);
   font-size: var(--fs-xs);
   color: var(--text-dim2);
   border: 1px solid var(--stroke);
   border-radius: 3px;
-  padding: 0 6px;
+  padding: 0 0.5rem;
   flex-shrink: 0;
   line-height: 1;
   white-space: nowrap;
@@ -149,8 +149,8 @@
 }
 
 .check {
-  width: 14px;
-  height: 14px;
+  width: 1.1667rem;
+  height: 1.1667rem;
   border-radius: 3px;
   border: 1px solid var(--stroke);
   flex-shrink: 0;
@@ -169,7 +169,7 @@
 }
 
 .empty {
-  padding: 24px 16px;
+  padding: 2rem 1.3333rem;
   text-align: center;
   font-family: var(--font-mono);
   font-size: var(--fs-base);
@@ -193,12 +193,12 @@
 .tag {
   display: inline-flex;
   align-items: center;
-  height: 18px;
+  height: 1.5rem;
   font-family: var(--font-mono);
   font-size: var(--fs-xs);
   border: 1px solid var(--stroke);
   border-radius: 3px;
-  padding: 0 6px;
+  padding: 0 0.5rem;
   flex-shrink: 0;
   line-height: 1;
   white-space: nowrap;
@@ -210,7 +210,7 @@
   color: #ff7a3d;
   border: 1px solid #ff7a3d;
   border-radius: 3px;
-  padding: 0 4px;
+  padding: 0 0.3333rem;
   flex-shrink: 0;
   white-space: nowrap;
 }

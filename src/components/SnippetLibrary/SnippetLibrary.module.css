@@ -12,13 +12,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 16px;
+  padding: 0.6667rem 1.3333rem;
   flex-shrink: 0;
 }
 
 .headerBtns {
   display: flex;
-  gap: 12px;
+  gap: 1rem;
 }
 
 .title {
@@ -44,18 +44,18 @@
 .catEditRow {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 0;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
 }
 
 .catNameInput {
   flex: 1;
-  height: 24px;
+  height: 2rem;
   background: var(--bg-overlay);
   border: 1px solid var(--stroke);
   border-radius: 4px;
   outline: none;
-  padding: 0 8px;
+  padding: 0 0.6667rem;
   font-family: var(--font-mono);
   font-size: var(--fs-base);
   color: var(--text-main);
@@ -66,8 +66,8 @@
 }
 
 .catColorInput {
-  width: 24px;
-  height: 24px;
+  width: 2rem;
+  height: 2rem;
   border: 1px solid var(--stroke);
   border-radius: 4px;
   background: transparent;
@@ -86,8 +86,8 @@
 }
 
 .catConfirmBtn {
-  width: 24px;
-  height: 24px;
+  width: 2rem;
+  height: 2rem;
   border: none;
   border-radius: 4px;
   background: var(--accent);
@@ -101,8 +101,8 @@
 }
 
 .catCancelBtn {
-  width: 24px;
-  height: 24px;
+  width: 2rem;
+  height: 2rem;
   border-radius: 4px;
   background: var(--bg-panel2);
   border: 1px solid var(--stroke);
@@ -121,8 +121,8 @@
 
 .catActions {
   display: flex;
-  gap: 4px;
-  margin-left: 4px;
+  gap: 0.3333rem;
+  margin-left: 0.3333rem;
   opacity: 0;
   transition: opacity 0.15s ease;
 }
@@ -136,8 +136,8 @@
 }
 
 .catActionBtn {
-  width: 18px;
-  height: 18px;
+  width: 1.5rem;
+  height: 1.5rem;
   border: none;
   background: transparent;
   color: var(--text-dim);
@@ -156,7 +156,7 @@
 }
 
 .emptyCat {
-  padding: 8px 8px;
+  padding: 0.6667rem;
   font-family: var(--font-mono);
   font-size: var(--fs-base);
   color: var(--text-dim);
@@ -171,9 +171,9 @@
   background: var(--bg-overlay);
   border: 1px solid var(--accent);
   border-radius: 6px;
-  padding: 8px 10px;
+  padding: 0.6667rem 0.8333rem;
   z-index: 1000;
-  width: 240px;
+  width: 20rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
   visibility: hidden;
 }
@@ -184,18 +184,18 @@
   font-size: var(--fs-base);
   color: var(--text-main);
   line-height: 1.4;
-  margin-bottom: 8px;
+  margin-bottom: 0.6667rem;
 }
 
 .popconfirmBtns {
   display: flex;
   justify-content: flex-end;
-  gap: 6px;
+  gap: 0.5rem;
 }
 
 .popconfirmCancel {
-  height: 22px;
-  padding: 0 10px;
+  height: 1.8333rem;
+  padding: 0 0.8333rem;
   border-radius: 4px;
   background: var(--bg-panel2);
   border: 1px solid var(--stroke);
@@ -210,8 +210,8 @@
 }
 
 .popconfirmOk {
-  height: 22px;
-  padding: 0 10px;
+  height: 1.8333rem;
+  padding: 0 0.8333rem;
   border: none;
   border-radius: 4px;
   background: #ff7a3d;
@@ -228,18 +228,18 @@
 .list {
   flex: 1;
   overflow-y: auto;
-  padding: 8px 16px 8px;
+  padding: 0.6667rem 1.3333rem;
 }
 
 .group {
-  margin-bottom: 2px;
+  margin-bottom: 0.1667rem;
 }
 
 .groupHeader {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 0;
+  gap: 0.6667rem;
+  padding: 0.5rem 0;
   cursor: pointer;
   user-select: none;
 }
@@ -277,8 +277,8 @@
 .item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 8px;
+  gap: 0.6667rem;
+  padding: 0.5rem 0.6667rem;
   border-left: 2px solid transparent;
   cursor: pointer;
   user-select: none;
@@ -324,8 +324,8 @@
 }
 
 .checkbox {
-  width: 14px;
-  height: 14px;
+  width: 1.1667rem;
+  height: 1.1667rem;
   border-radius: 3px;
   border: 1px solid var(--stroke);
   flex-shrink: 0;
@@ -355,8 +355,8 @@
 
 .snippetActions {
   display: flex;
-  gap: 4px;
-  margin-left: 4px;
+  gap: 0.3333rem;
+  margin-left: 0.3333rem;
   opacity: 0;
   transition: opacity 0.15s ease;
 }

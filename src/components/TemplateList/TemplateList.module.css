@@ -9,7 +9,7 @@
 }
 
 .empty {
-  padding: 24px 16px;
+  padding: 2rem 1.3333rem;
   font-family: var(--font-mono);
   font-size: var(--fs-base);
   color: var(--text-dim);
@@ -24,12 +24,12 @@
 
 .card {
   position: relative;
-  padding: 7px 16px 8px;
+  padding: 0.5833rem 1.3333rem 0.6667rem;
   border-left: 2px solid transparent;
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 0.25rem;
   flex-shrink: 0;
   transition: background 0.1s ease;
 }
@@ -49,7 +49,7 @@
 .row1 {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 0.5rem;
   min-width: 0;
 }
 
@@ -64,13 +64,13 @@
 .tags {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 0.3333rem;
   flex: 1;
   min-width: 0;
   overflow: hidden;
   white-space: nowrap;
-  padding-top: 6px;
-  margin-top: -6px;
+  padding-top: 0.5rem;
+  margin-top: -0.5rem;
 }
 
 .tagWrap {
@@ -83,8 +83,8 @@
 .tag {
   display: inline-flex;
   align-items: center;
-  height: 18px;
-  padding: 0 6px;
+  height: 1.5rem;
+  padding: 0 0.5rem;
   border-radius: 3px;
   border: 1px solid var(--stroke);
   font-family: var(--font-mono);
@@ -95,10 +95,10 @@
 
 .tagRemove {
   position: absolute;
-  top: -5px;
-  right: -5px;
-  width: 12px;
-  height: 12px;
+  top: -0.4167rem;
+  right: -0.4167rem;
+  width: 1rem;
+  height: 1rem;
   border: none;
   border-radius: 50%;
   background: var(--accent);
@@ -125,7 +125,7 @@
   font-family: var(--font-mono);
   font-size: var(--fs-xs);
   cursor: pointer;
-  padding: 0 2px;
+  padding: 0 0.1667rem;
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -141,7 +141,7 @@
   font-family: var(--font-mono);
   font-size: var(--fs-xs);
   cursor: pointer;
-  padding: 0 2px;
+  padding: 0 0.1667rem;
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -151,13 +151,13 @@
 }
 
 .tagInput {
-  height: 18px;
-  width: 64px;
+  height: 1.5rem;
+  width: 5.3333rem;
   background: var(--bg-overlay);
   border: 1px solid var(--accent);
   border-radius: 3px;
   outline: none;
-  padding: 0 4px;
+  padding: 0 0.3333rem;
   font-family: var(--font-mono);
   font-size: var(--fs-xs);
   color: var(--text-main);
@@ -177,12 +177,12 @@
   right: 0;
   top: 0;
   bottom: 0;
-  width: 160px;
+  width: 13.3333rem;
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 4px;
-  padding-right: 16px;
+  gap: 0.3333rem;
+  padding-right: 1.3333rem;
   background: linear-gradient(to right, transparent, var(--bg-panel2) 25%);
   opacity: 0;
   pointer-events: none;
@@ -195,8 +195,8 @@
 }
 
 .actionBtn {
-  width: 18px;
-  height: 18px;
+  width: 1.5rem;
+  height: 1.5rem;
   border: none;
   background: transparent;
   color: var(--text-dim);
@@ -224,13 +224,13 @@
   position: absolute;
   bottom: 100%;
   right: 0;
-  margin-bottom: 6px;
+  margin-bottom: 0.5rem;
   background: var(--bg-overlay);
   border: 1px solid var(--accent);
   border-radius: 6px;
-  padding: 8px 10px;
+  padding: 0.6667rem 0.8333rem;
   z-index: 100;
-  width: 200px;
+  width: 16.6667rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
@@ -240,18 +240,18 @@
   font-size: var(--fs-base);
   color: var(--text-main);
   line-height: 1.4;
-  margin-bottom: 8px;
+  margin-bottom: 0.6667rem;
 }
 
 .popconfirmBtns {
   display: flex;
   justify-content: flex-end;
-  gap: 6px;
+  gap: 0.5rem;
 }
 
 .popconfirmCancel {
-  height: 22px;
-  padding: 0 10px;
+  height: 1.8333rem;
+  padding: 0 0.8333rem;
   border-radius: 4px;
   background: var(--bg-panel2);
   border: 1px solid var(--stroke);
@@ -266,8 +266,8 @@
 }
 
 .popconfirmOk {
-  height: 22px;
-  padding: 0 10px;
+  height: 1.8333rem;
+  padding: 0 0.8333rem;
   border: none;
   border-radius: 4px;
   background: #ff7a3d;
@@ -288,5 +288,5 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  padding-right: 48px;
+  padding-right: 4rem;
 }
