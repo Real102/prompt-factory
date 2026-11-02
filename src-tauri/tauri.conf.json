@@ -32,8 +32,17 @@
     }
   },
   "bundle": {
-    "active": false,
-    "targets": [],
+    "active": true,
+    "targets": ["nsis"],
+    "windows": {
+      "nsis": {
+        "template": "nsis-custom/installer.nsi",
+        "languages": ["SimpChinese"],
+        "customLanguageFiles": {
+          "SimpChinese": "nsis-custom/SimpChinese.nsh"
+        }
+      }
+    },
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
