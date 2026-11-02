@@ -29,7 +29,11 @@ pub fn toggle_overlay_impl(window: tauri::WebviewWindow) {
         let _ = window.hide();
     } else {
         // 唤出前按当前档位校准窗口尺寸（覆盖换屏后超屏的场景）
-        apply_scale(&window, read_ui_scale());
+        let scale = {
+            let app = window.app_handle();
+            read_ui_scale(app)
+        };
+        apply_scale(&window, scale);
         let _ = window.show();
         let _ = window.set_focus();
     }

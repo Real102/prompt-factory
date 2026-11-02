@@ -47,9 +47,12 @@ pub fn run() {
                 }
             }
 
+            // 首次启动把旧版 exe 同目录 data/ 数据迁移到 AppData（只复制不删除）
+            commands::migrate_legacy_data(app.handle());
+
             // 按已存档位静默校准窗口尺寸（窗口初始不可见，用户无感）
             if let Some(window) = app.get_webview_window("main") {
-                let scale = commands::read_ui_scale();
+                let scale = commands::read_ui_scale(app.handle());
                 window::apply_scale(&window, scale);
             }
 

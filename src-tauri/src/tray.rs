@@ -22,7 +22,7 @@ pub fn create_tray(app: &tauri::AppHandle) -> tauri::Result<()> {
     let quit_item = MenuItem::with_id(app, "quit", "退出", true, None::<&str>)?;
 
     // 界面大小子菜单（档位来自 commands::UI_SCALES），插在"开机自启"上方
-    let current_scale = read_ui_scale();
+    let current_scale = read_ui_scale(app);
     let scale_items = UI_SCALES
         .iter()
         .map(|&s| {

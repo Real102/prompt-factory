@@ -9,20 +9,25 @@ pub fn copy_to_clipboard(text: String, app: tauri::AppHandle) -> bool {
     true
 }
 
-/// 获取数据文件路径：exe 同目录下的 data/prompt-factory-data.json
-fn get_data_file_path() -> PathBuf {
-    let exe_dir = std::env::current_exe()
-        .ok()
-        .and_then(|p| p.parent().map(|p| p.to_path_buf()))
-        .unwrap_or_else(|| PathBuf::from("."));
-    exe_dir.join("data").join("prompt-factory-data.json")
+/// 获取数据根目录：AppData 下（Windows: %APPDATA%\com.prompt-factory.app\data）
+fn get_data_dir(app: &tauri::AppHandle) -> PathBuf {
+    let base = app
+        .path()
+        .app_data_dir()
+        .unwrap_or_else(|_| PathBuf::from("."));
+    base.join("data")
+}
+
+/// 获取数据文件路径：AppData 下 data/prompt-factory-data.json
+fn get_data_file_path(app: &tauri::AppHandle) -> PathBuf {
+    get_data_dir(app).join("prompt-factory-data.json")
 }
 
 /// IPC command: 读取数据文件
-/// 读取 exe 同目录下 data/prompt-factory-data.json，不存在返回 "{}"
+/// 读取 AppData 下 data/prompt-factory-data.json，不存在返回 "{}"
 #[tauri::command]
-pub fn read_data_file() -> String {
-    let data_file = get_data_file_path();
+pub fn read_data_file(app: tauri::AppHandle) -> String {
+    let data_file = get_data_file_path(&app);
     match std::fs::read_to_string(&data_file) {
         Ok(content) => content,
         Err(_) => "{}".to_string(),
@@ -30,10 +35,10 @@ pub fn read_data_file() -> String {
 }
 
 /// IPC command: 写入数据文件
-/// 写入 exe 同目录下 data/prompt-factory-data.json
+/// 写入 AppData 下 data/prompt-factory-data.json
 #[tauri::command]
-pub fn write_data_file(content: String) {
-    let data_file = get_data_file_path();
+pub fn write_data_file(content: String, app: tauri::AppHandle) {
+    let data_file = get_data_file_path(&app);
     if let Some(parent) = data_file.parent() {
         let _ = std::fs::create_dir_all(parent);
     }
@@ -42,8 +47,8 @@ pub fn write_data_file(content: String) {
 
 /// IPC command: 导出数据到指定路径
 #[tauri::command]
-pub fn export_data(target_path: String) -> bool {
-    let data_file = get_data_file_path();
+pub fn export_data(target_path: String, app: tauri::AppHandle) -> bool {
+    let data_file = get_data_file_path(&app);
     match std::fs::read_to_string(&data_file) {
         Ok(content) => std::fs::write(&target_path, content).is_ok(),
         Err(_) => false,
@@ -52,10 +57,10 @@ pub fn export_data(target_path: String) -> bool {
 
 /// IPC command: 从指定路径导入数据
 #[tauri::command]
-pub fn import_data(source_path: String) -> bool {
+pub fn import_data(source_path: String, app: tauri::AppHandle) -> bool {
     match std::fs::read_to_string(&source_path) {
         Ok(content) => {
-            let data_file = get_data_file_path();
+            let data_file = get_data_file_path(&app);
             if let Some(parent) = data_file.parent() {
                 let _ = std::fs::create_dir_all(parent);
             }
@@ -65,14 +70,37 @@ pub fn import_data(source_path: String) -> bool {
     }
 }
 
-/// 获取设置文件路径：exe 同目录下 data/prompt-factory-settings.json
+/// 获取设置文件路径：AppData 下 data/prompt-factory-settings.json
 /// UI 偏好独立存档，不随数据导入导出被覆盖
-fn get_settings_file_path() -> PathBuf {
-    let exe_dir = std::env::current_exe()
+fn get_settings_file_path(app: &tauri::AppHandle) -> PathBuf {
+    get_data_dir(app).join("prompt-factory-settings.json")
+}
+
+/// 首次启动迁移：把旧版 exe 同目录 data/ 下的数据搬到 AppData（只复制不删除）
+/// 仅当 AppData 下对应文件不存在且旧文件存在时复制，不覆盖新数据；失败静默（旧文件仍在）
+pub fn migrate_legacy_data(app: &tauri::AppHandle) {
+    let new_dir = get_data_dir(app);
+    let legacy_dir = std::env::current_exe()
         .ok()
         .and_then(|p| p.parent().map(|p| p.to_path_buf()))
-        .unwrap_or_else(|| PathBuf::from("."));
-    exe_dir.join("data").join("prompt-factory-settings.json")
+        .unwrap_or_else(|| PathBuf::from("."))
+        .join("data");
+
+    const FILES: [&str; 2] = ["prompt-factory-data.json", "prompt-factory-settings.json"];
+    for name in FILES {
+        let new_file = new_dir.join(name);
+        if new_file.exists() {
+            continue; // AppData 已有数据，不覆盖
+        }
+        let legacy_file = legacy_dir.join(name);
+        if !legacy_file.exists() {
+            continue;
+        }
+        if let Some(parent) = new_file.parent() {
+            let _ = std::fs::create_dir_all(parent);
+        }
+        let _ = std::fs::copy(&legacy_file, &new_file);
+    }
 }
 
 /// 界面大小可选档位
@@ -83,8 +111,8 @@ pub const BASE_W: f64 = 680.0;
 pub const BASE_H: f64 = 800.0;
 
 /// 读取 ui_scale（吸附到最近合法档位，兼容旧档 0.8/0.9/1.1）；文件缺失或字段非法时返回 1.0
-pub fn read_ui_scale() -> f64 {
-    let path = get_settings_file_path();
+pub fn read_ui_scale(app: &tauri::AppHandle) -> f64 {
+    let path = get_settings_file_path(app);
     let raw = match std::fs::read_to_string(&path) {
         Ok(content) => serde_json::from_str::<serde_json::Value>(&content)
             .ok()
@@ -119,7 +147,7 @@ pub fn write_ui_scale(scale: f64, app: &tauri::AppHandle) -> bool {
     } else {
         scale
     };
-    let path = get_settings_file_path();
+    let path = get_settings_file_path(app);
     if let Some(parent) = path.parent() {
         let _ = std::fs::create_dir_all(parent);
     }
@@ -143,8 +171,8 @@ pub fn write_ui_scale(scale: f64, app: &tauri::AppHandle) -> bool {
 
 /// IPC command: 读取界面缩放
 #[tauri::command]
-pub fn get_ui_scale() -> f64 {
-    read_ui_scale()
+pub fn get_ui_scale(app: tauri::AppHandle) -> f64 {
+    read_ui_scale(&app)
 }
 
 /// IPC command: 设置界面缩放
