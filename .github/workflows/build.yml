@@ -12,16 +12,16 @@ jobs:
   build:
     strategy:
       fail-fast: false
-        matrix:
-          include:
-            - os: windows-latest
-              bundles: nsis
-              bundle_glob: src-tauri/target/release/bundle/nsis/*.exe
-              artifact_name: prompt-factory-windows-x64
-            - os: macos-latest
-              bundles: dmg
-              bundle_glob: src-tauri/target/release/bundle/dmg/*.dmg
-              artifact_name: prompt-factory-macos-arm64
+      matrix:
+        include:
+          - os: windows-latest
+            bundles: nsis
+            bundle_glob: src-tauri/target/release/bundle/nsis/*.exe
+            artifact_name: prompt-factory-windows-x64
+          - os: macos-latest
+            bundles: dmg
+            bundle_glob: src-tauri/target/release/bundle/dmg/*.dmg
+            artifact_name: prompt-factory-macos-arm64
 
     runs-on: ${{ matrix.os }}
 
