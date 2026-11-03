@@ -275,6 +275,7 @@
 }
 
 .item {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 0.6667rem;
@@ -354,17 +355,25 @@
 }
 
 .snippetActions {
+  position: absolute;
+  right: 2rem;
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
   gap: 0.3333rem;
-  margin-left: 0.3333rem;
+  padding-left: 1.5rem;
+  background: linear-gradient(to right, transparent, var(--bg-panel2) 30%);
   opacity: 0;
+  pointer-events: none;
   transition: opacity 0.15s ease;
 }
 
 .item:hover .snippetActions {
   opacity: 1;
+  pointer-events: auto;
 }
 
 .itemConfirming .snippetActions {
   opacity: 1;
+  pointer-events: auto;
 }
