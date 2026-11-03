@@ -320,10 +320,52 @@ const SEED_SNIPPETS: Array<Omit<Snippet, 'updated_at' | 'usage_count'>> = [
     content:
       '场景：用户在 {{页面}} 触发 {{动作}}，期望 {{预期结果}}，实际 {{实际结果}}。',
     version: 1
+  },
+  {
+    id: 'sn_seed_role_x',
+    category: 'role' as Category,
+    name: '评审角色',
+    content:
+      '以资深{{角色名}}视角评审，结论先行（通过/有条件通过/打回）。必须回答：①具体风险（量化到可接受阈值）；②至少一个会导致该设计在 {{返工周期}} 内返工的具体场景。禁止软词。',
+    version: 1
+  },
+  {
+    id: 'sn_seed_perm_x',
+    category: 'perm' as Category,
+    name: '操作权限',
+    content:
+      '你可{{允许动作}}，但不要{{禁止动作}}，每次改动须说明意图、范围与影响面。',
+    version: 1
+  },
+  {
+    id: 'sn_seed_avoid_x',
+    category: 'avoid' as Category,
+    name: '避免事项',
+    content:
+      '不要泛泛建议；不要跳过 {{审查项}} 审查；禁止执行 {{危险命令}} 等不可逆命令。',
+    version: 1
+  },
+  {
+    id: 'sn_seed_fmt_x',
+    category: 'fmt' as Category,
+    name: '输出格式',
+    content:
+      '按【{{问题等级}}｜{{位置}}｜{{建议}}｜{{理由}}】四列输出，末尾附 {{统计项}} 总结。',
+    version: 1
+  },
+  {
+    id: 'sn_seed_ctx_x',
+    category: 'ctx' as Category,
+    name: '上下文背景',
+    content:
+      '项目：{{项目名}}；技术栈：{{技术栈}}；模块：{{模块名}}。请基于实际代码作答。',
+    version: 1
   }
 ]
 
-const SEED_TEMPLATES: Array<Omit<Template, 'id' | 'type'>> = [
+/*
+ * —— 旧模板种子数据（已整体注释，保留备查）——
+const SEED_TEMPLATES_OLD: Array<Omit<Template, 'id' | 'type'>> = [
   {
     name: 'Rust 代码审查',
     description: '专注代码质量、安全与性能，按四列格式输出审查结果',
@@ -412,6 +454,91 @@ const SEED_TEMPLATES: Array<Omit<Template, 'id' | 'type'>> = [
     usage_count: 0
   }
 ]
+—— 旧模板种子数据注释结束 ——
+*/
+
+const SEED_TEMPLATES: Array<Omit<Template, 'id' | 'type'>> = [
+  {
+    name: '角色扮演专家',
+    description: '让 AI 以特定领域资深专家视角给出可落地建议',
+    content:
+      '你是一位{{领域}}领域的资深专家，拥有 10 年以上实战经验。请以该专家的视角，针对以下问题给出专业、可落地的建议：\n\n{{问题}}\n\n要求：先给出结论，再展开分析，最后给出可执行的下一步行动清单。',
+    tags: ['角色', '专家'],
+    usage_count: 0
+  },
+  {
+    name: '文章写作助手',
+    description: '按指定字数、文体与风格写一篇文章',
+    content:
+      '你是一名资深{{领域}}内容编辑。请围绕主题「{{主题}}」写一篇{{字数}}字左右的{{文体}}。\n\n要求：\n- 开头用钩子抓住读者注意力\n- 正文分 2-4 个小节，每节有明确观点和例证\n- 结尾总结并给出行动建议或思考\n- 语言{{风格：简洁有力/轻松幽默/专业严谨}}',
+    tags: ['写作'],
+    usage_count: 0
+  },
+  {
+    name: '中英互译',
+    description: '中英互译，保留原文语气与专业术语准确',
+    content:
+      '你是一位专业翻译，请将以下{{源语言}}翻译成{{目标语言}}。\n\n要求：\n- 准确传达原意，符合目标语言的表达习惯\n- 专业术语翻译准确\n- 保留原文格式与语气\n\n原文：\n{{原文}}',
+    tags: ['翻译'],
+    usage_count: 0
+  },
+  {
+    name: '代码审查',
+    description: '按正确性/安全/性能/可维护性逐项审查代码',
+    content:
+      '你是一位资深{{语言}}工程师，请严格审查以下代码：\n\n{{代码}}\n\n从以下维度逐项检查并给出结论：\n1. 正确性：逻辑错误、边界条件、异常处理\n2. 安全性：注入、越权、敏感信息泄露\n3. 可读性：命名、结构、注释\n4. 性能：明显的性能问题\n5. 可维护性：重复代码、可测试性\n\n输出格式：按【问题等级｜位置｜建议｜理由】四列输出，每条附修改建议和示例代码。',
+    tags: ['开发', '审查'],
+    usage_count: 0
+  },
+  {
+    name: '周报生成',
+    description: '把零散工作记录整理成结构清晰、突出结果的周报',
+    content:
+      '你是一位专业的职场写作助手。请根据以下本周工作记录，生成一份结构清晰的周报。\n\n本周工作记录：\n{{本周工作记录}}\n\n要求：\n- 结构：本周完成 / 进行中 / 下周计划 / 风险与需要的支持\n- 语言精炼，突出结果与数据，避免流水账\n- 每项工作一句话概括 + 一句话说明价值或进展',
+    tags: ['写作', '职场'],
+    usage_count: 0
+  },
+  {
+    name: '会议纪要整理',
+    description: '把会议草稿或录音转写整理成结构化会议纪要',
+    content:
+      '你是一位专业的会议记录助手。请根据以下会议记录草稿或录音转写，整理成一份结构清晰的会议纪要。\n\n会议原始内容：\n{{会议原始内容}}\n\n输出格式：\n1. 会议主题与参会人\n2. 核心结论（3-5 条）\n3. 决议事项（责任人 + 截止时间）\n4. 待办事项清单（Action Items）\n5. 遗留问题与后续讨论项',
+    tags: ['职场', '写作'],
+    usage_count: 0
+  },
+  {
+    name: '头脑风暴伙伴',
+    description: '从多个角度为主题生成点子并挑选最值得做的方向',
+    content:
+      '你是创意顾问。请围绕主题「{{主题}}」，从以下 5 个不同角度各给出 3 个点子：{{可选角度，如：用户视角/技术视角/商业模式/跨界借鉴/反向思考}}\n\n要求：\n- 每个点子一句话说清，附一句「为什么可行」\n- 至少 2 个点子要跳出常规思路\n- 最后挑出你认为最值得做的 1 个点子，说明理由和第一步行动',
+    tags: ['创意'],
+    usage_count: 0
+  },
+  {
+    name: '文本总结提炼',
+    description: '把长文压缩成核心结论 + 要点清单',
+    content:
+      '你是一位信息提炼专家。请将以下内容总结成一份{{目标读者}}能快速抓住重点的摘要。\n\n要求：\n- 一句话核心结论（TL;DR）\n- 3-5 条要点，每条一句话，按重要性排序\n- 保留关键数据、结论和行动项，删除冗余细节\n\n原文：\n{{原文}}',
+    tags: ['写作'],
+    usage_count: 0
+  },
+  {
+    name: '邮件/消息润色',
+    description: '把草稿改写成指定语气与场景的邮件或消息',
+    content:
+      '你是一位职场沟通专家。请将以下内容改写成一封{{正式程度：正式/半正式/轻松}}的{{场景：邮件/微信消息/请求信}}。\n\n原始内容/意图：\n{{原始内容}}\n\n要求：\n- 语气礼貌得体、简洁直接\n- 结构清晰：背景 → 请求/说明 → 期望的回复\n- 篇幅不超过 {{字数}} 字\n- 给出 2 个版本：简洁版 + 完整版',
+    tags: ['职场', '写作'],
+    usage_count: 0
+  },
+  {
+    name: '学习新概念',
+    description: '把复杂概念讲成大白话 + 生活类比 + 可上手的例子',
+    content:
+      '你是一位擅长化繁为简的老师。请用{{深度：小学生能懂/初学者/专业人士}}的深度讲解「{{概念}}」。\n\n要求：\n- 先用一句大白话说清它是什么\n- 再用一个生活中的类比帮助理解\n- 然后讲清楚它为什么重要、解决什么问题\n- 最后给出一个可上手的例子或练习\n\n请用中文回答，面向{{目标读者}}。',
+    tags: ['学习'],
+    usage_count: 0
+  }
+]
 
 /**
  * 返回初始种子数据（包含预设片段、模板与分类元信息）。
@@ -427,6 +554,20 @@ export function getSeedData(): AppData {
   for (let i = 0; i < SEED_TEMPLATES.length; i++) {
     const id = `tpl_seed_${i + 1}`
     templates[id] = { ...SEED_TEMPLATES[i], type: 'solidified', steps: null, id }
+  }
+  // 临时组合模板（引用型）：按序拼合 5 条临时片段，注入时先经 variableEngine 填值
+  templates['tpl_seed_ref_x'] = {
+    id: 'tpl_seed_ref_x',
+    type: 'reference',
+    name: '代码审查模板（片段组合）',
+    steps: [
+      'sn_seed_role_x',
+      'sn_seed_perm_x',
+      'sn_seed_avoid_x',
+      'sn_seed_fmt_x',
+      'sn_seed_ctx_x'
+    ],
+    usage_count: 0
   }
   return {
     snippets,
