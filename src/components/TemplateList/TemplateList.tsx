@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useLayoutEffect, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useTemplateStore, getTagColor } from '@/stores/templateStore';
 import { useSnippetStore } from '@/stores/snippetStore';
 import { useUIStore } from '@/stores/uiStore';
@@ -34,8 +35,33 @@ function TemplateList() {
   const [tagInputValue, setTagInputValue] = useState('');
   const [expandedTagsId, setExpandedTagsId] = useState<string | null>(null);
   const popconfirmRef = useRef<HTMLDivElement>(null);
+  const popTriggerRef = useRef<HTMLButtonElement | null>(null);
   const tagInputRef = useRef<HTMLInputElement>(null);
   const tagCommittedRef = useRef(false);
+
+  const updatePopPosition = useCallback(() => {
+    const pop = popconfirmRef.current;
+    const btn = popTriggerRef.current;
+    if (!pop || !btn) return;
+    const rect = btn.getBoundingClientRect();
+    const popRect = pop.getBoundingClientRect();
+    const margin = 6;
+    const pad = 8;
+    let top: number;
+    if (rect.top - popRect.height - margin >= pad) {
+      top = rect.top - popRect.height - margin;
+    } else {
+      top = rect.bottom + margin;
+    }
+    let left = rect.right - popRect.width;
+    if (left < pad) left = pad;
+    if (left + popRect.width > window.innerWidth - pad) {
+      left = window.innerWidth - pad - popRect.width;
+    }
+    pop.style.top = `${Math.round(top)}px`;
+    pop.style.left = `${Math.round(left)}px`;
+    pop.style.visibility = 'visible';
+  }, []);
 
   useEffect(() => {
     if (!confirmId) return;
@@ -44,9 +70,21 @@ function TemplateList() {
         setConfirmId(null);
       }
     };
+    const reposition = () => updatePopPosition();
     document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [confirmId]);
+    window.addEventListener('scroll', reposition, true);
+    window.addEventListener('resize', reposition);
+    return () => {
+      document.removeEventListener('mousedown', handler);
+      window.removeEventListener('scroll', reposition, true);
+      window.removeEventListener('resize', reposition);
+    };
+  }, [confirmId, updatePopPosition]);
+
+  useLayoutEffect(() => {
+    if (!confirmId) return;
+    updatePopPosition();
+  }, [confirmId, updatePopPosition]);
 
   useEffect(() => {
     if (tagInputId && tagInputRef.current) {
@@ -79,6 +117,11 @@ function TemplateList() {
     tagCommittedRef.current = true;
     setTagInputId(null);
     setTagInputValue('');
+  }
+
+  function openConfirm(e: React.MouseEvent<HTMLButtonElement>, id: string) {
+    popTriggerRef.current = e.currentTarget;
+    setConfirmId(id);
   }
 
   function handleConfirmDelete(id: string) {
@@ -208,33 +251,35 @@ function TemplateList() {
                     type="button"
                     className={styles.actionBtn}
                     title="删除模板"
-                    onClick={() => setConfirmId(tpl.id)}
+                    onClick={(e) => openConfirm(e, tpl.id)}
                   >
                     ✕
                   </button>
-                  {isConfirming && (
-                    <div className={styles.popconfirm} ref={popconfirmRef}>
-                      <span className={styles.popconfirmMsg}>
-                        {`删除模板「${tpl.name}」？`}
-                      </span>
-                      <div className={styles.popconfirmBtns}>
-                        <button
-                          type="button"
-                          className={styles.popconfirmCancel}
-                          onClick={() => setConfirmId(null)}
-                        >
-                          取消
-                        </button>
-                        <button
-                          type="button"
-                          className={styles.popconfirmOk}
-                          onClick={() => handleConfirmDelete(tpl.id)}
-                        >
-                          删除
-                        </button>
-                      </div>
-                    </div>
-                  )}
+                  {isConfirming &&
+                    createPortal(
+                      <div className={styles.popconfirm} ref={popconfirmRef}>
+                        <span className={styles.popconfirmMsg}>
+                          {`删除模板「${tpl.name}」？`}
+                        </span>
+                        <div className={styles.popconfirmBtns}>
+                          <button
+                            type="button"
+                            className={styles.popconfirmCancel}
+                            onClick={() => setConfirmId(null)}
+                          >
+                            取消
+                          </button>
+                          <button
+                            type="button"
+                            className={styles.popconfirmOk}
+                            onClick={() => handleConfirmDelete(tpl.id)}
+                          >
+                            删除
+                          </button>
+                        </div>
+                      </div>,
+                      document.body
+                    )}
                 </span>
               </span>
             </div>
