@@ -15,7 +15,13 @@ fn get_data_dir(app: &tauri::AppHandle) -> PathBuf {
         .path()
         .app_data_dir()
         .unwrap_or_else(|_| PathBuf::from("."));
-    base.join("data")
+    // dev 调试（npm run tauri dev）数据存独立 dev/data 子目录，
+    // 与安装版正式数据彻底隔离，互不覆盖
+    if cfg!(debug_assertions) {
+        base.join("dev").join("data")
+    } else {
+        base.join("data")
+    }
 }
 
 /// 获取数据文件路径：AppData 下 data/prompt-factory-data.json

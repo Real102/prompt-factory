@@ -59,12 +59,37 @@ function migrateData(data: Partial<AppData>): AppData {
  * 命令读写 JSON 文件。在浏览器开发环境（invoke 不可用）下
  * 自动回退到 localStorage。
  */
-export class StorageService {
+  /**
+   * 本地存储服务。
+   *
+   * 通过 Tauri invoke 调用 Rust 侧的 read_data_file / write_data_file
+   * 命令读写 JSON 文件。在浏览器开发环境（invoke 不可用）下
+   * 自动回退到 localStorage。
+   */
+  export class StorageService {
   /** 内存缓存：save 时合并各 store 的部分数据 */
   private cached: AppData | null = null;
 
-  /** 加载数据；文件不存在或为空时返回种子数据 */
+  /** 种子模式（测试用）：开启时 load 返回种子数据，save 只更新内存不写盘 */
+  private seedMode = false;
+
+  /** 查询种子模式是否开启 */
+  isSeedMode(): boolean {
+    return this.seedMode;
+  }
+
+  /** 切换种子模式（切换后下次 load 生效） */
+  setSeedMode(enabled: boolean): void {
+    this.seedMode = enabled;
+  }
+
+  /** 加载数据；种子模式下返回种子数据；文件不存在或为空时返回种子数据 */
   async load(): Promise<AppData> {
+    if (this.seedMode) {
+      const seed = getSeedDataFromData();
+      this.cached = seed;
+      return seed;
+    }
     try {
       const raw = await invoke<string>('read_data_file');
       if (!raw || raw.trim() === '') {
@@ -94,6 +119,7 @@ export class StorageService {
       categories: data.categories ?? this.cached?.categories ?? [],
     };
     this.cached = merged;
+    if (this.seedMode) return; // 种子模式：只更新内存不写盘
     const content = JSON.stringify(merged, null, 2);
     try {
       await invoke('write_data_file', { content });

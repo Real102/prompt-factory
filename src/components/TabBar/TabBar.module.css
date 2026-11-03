@@ -52,3 +52,26 @@
 .addBtn:hover {
   color: var(--accent);
 }
+
+/* 种子数据切换按钮（仅 dev 显示）：hover bar 区域才展示 */
+.seedBtn {
+  background: transparent;
+  border: none;
+  color: var(--text-dim2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-base);
+  cursor: pointer;
+  padding: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease, color 0.15s ease;
+}
+
+.bar:hover .seedBtn {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.seedBtnActive {
+  color: var(--accent);
+}
